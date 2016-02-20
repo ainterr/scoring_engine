@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block status %}active{% endblock %}
+
+{% block content %}
+<h1>Service Status</h1>
+
+<table class="table">
+<thead>
+<tr>
+<th>Service</th>
+<th>Status</th>
+<th>Checks Passed</th>
+<th>Checks Run</th>
+<th>%</th>
+</tr>
+</thead>
+
+<tbody>
+{% for r in results %}
+<tr class="{{ r.style }}">
+<td>{{ r.service }}</td>
+<td>{{ r.status }}</td>
+<td>{{ r.passed }}</td>
+<td>{{ r.run }}</td>
+<td>{{ r.percent }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock %}

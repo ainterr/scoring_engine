@@ -1,16 +1,35 @@
 from __future__ import unicode_literals
 
+from django.contrib.auth.models import User
 from django.db import models
-
-class Team(models.Model):
-    name = models.CharField(max_length=20, blank=False)
 
 class Service(models.Model):
     name = models.CharField(max_length=20, blank=False)
     ip = models.GenericIPAddressField(blank=False)
     port = models.PositiveIntegerField(blank=False)
 
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='services')
+    # Plugin creates a field here called  'plugin'
+    # Team creates a field here called 'teams'
+    # Result creates a field here called 'results'
+
+class Plugin(models.Model):
+    servce = models.OneToOneField(Service, on_delete=models.CASCADE, related_name='plugin')
+
+    name = models.CharField(max_length=20, blank=False)
+
+class Team(models.Model):
+    name = models.CharField(max_length=20, blank=False)
+
+    services = models.ManyToManyField(Service, related_name='teams')
+
+    # UserProfile creates a field here called 'users'
+    # Credential creates a field here called 'credentials'
+    # Result creates a field here called 'results'
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='users')
 
 class Credential(models.Model):
     username = models.CharField(max_length=20, blank=False)
@@ -18,10 +37,8 @@ class Credential(models.Model):
 
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='credentials')
 
-class Plugin(models.Model):
-    name = models.CharField(max_length=20, blank=False)
-
 class Result(models.Model):
+    status = models.BooleanField(default=False)
+    
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='results')
-    plugin = models.ForeignKey(Plugin, on_delete=models.CASCADE, related_name='results')
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='results')
