@@ -36,7 +36,11 @@ def poll():
                 print('Error: no module found for configured plugin: {}'.format(service.plugin.name))
                 continue
                 
-            success = plugin.run(options)
+            try:
+                success = plugin.run(options)
+            except Exception as e:
+                print('Error: Plugin {} threw exception {}'.format(service.plugin.name, e))
+                success = False
 
             models.Result(
                 team=team, 

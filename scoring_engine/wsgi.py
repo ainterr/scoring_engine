@@ -11,6 +11,11 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+from engine import poller
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "scoring_engine.settings")
 
 application = get_wsgi_application()
+
+# Start our background poller
+poller.async().start()

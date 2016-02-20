@@ -23,9 +23,13 @@ Coming Soon...
 
 `python manage.py migrate`
 
-3. (optional) Load the example data
+3. Register Plugins
 
-`python manage.py populate`
+`python manage.py registerplugins`
+
+3. Load the configuration into the database (located in `/engine/config.py`)
+
+`python manage.py configure`
 
 4. Run the server
 
