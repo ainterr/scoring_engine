@@ -12,6 +12,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         team = models.Team(name='NUCCDC')
         team.save()
+
+        credential = models.Credential(username='joe', password='Sup3rSecret!', team=team)
+        credential.save()
         
         plugin_http = models.Plugin(name='http')
         plugin_http.save()

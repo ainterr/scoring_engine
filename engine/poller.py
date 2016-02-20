@@ -2,28 +2,48 @@ from threading import Thread, Event
 from time import sleep
 import pkgutil
 
-import settings
-import plugins
+import models, settings, plugins
 
-PLUGINS = []
+PLUGINS = {}
 
 def get_plugins():
-    modules = []
+    modules = {}
 
     for loader, name, ispkg in pkgutil.walk_packages(path=plugins.__path__,
         prefix=plugins.__name__+'.',
         onerror=lambda x: None):
         
         module = loader.find_module(name).load_module(name)
-        modules.append(module)
+        modules[name.split('.')[-1]] = module
 
     return modules
 
 def poll():
     global PLUGINS
 
-    for plugin in PLUGINS:
-        plugin.run()
+    for team in models.Team.objects.all():
+        credential = team.credentials.order_by('?').first()
+
+        for service in team.services.all():
+            options = {}
+            options['ip'] = service.ip
+            options['port'] = service.port
+            options['username'] = credential.username
+            options['password'] = credential.password
+
+            try: plugin = PLUGINS[service.plugin.name]
+            except KeyError:
+                print('Error: no module found for configured plugin: {}'.format(service.plugin.name))
+                continue
+                
+            success = plugin.run(options)
+
+            models.Result(
+                team=team, 
+                service=service, 
+                plugin=service.plugin, 
+                status=success
+            ).save()
 
 class PollingThread(Thread):
     def __init__(self, interval):
