@@ -9,6 +9,7 @@ use in our practice sessions.
 ### Dependencies
 
 - Django v1.9
+- dnspython
 
 ### Database Schema
 
@@ -17,7 +18,7 @@ Coming Soon...
 ### Installing
 1. Install dependencies:
 
-`pip install django`
+`pip install django dnspython`
 
 2. Setup the sqlite databse
 
@@ -27,15 +28,25 @@ Coming Soon...
 
 `python manage.py registerplugins`
 
-3. Load the configuration into the database (located in `/engine/config.py`)
+3. Customize the configuration in `/engine/config.py` and apply the config to
+the database with:
 
 `python manage.py configure`
 
-4. Run the server
+4. Start the server
 
 `pthon manage.py runserver`
 
 The Scoring Engine should now be accessable at http://localhost:8000.
+
+### Included Plugins
+- DNS
+- FTP
+- HTTP
+- IMAP
+- POP3
+- SMTP
+- More to come...
 
 ### Writing Plugins
 
