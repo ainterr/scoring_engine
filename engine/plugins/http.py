@@ -5,7 +5,6 @@ from requests.exceptions import *
 import hashlib, random
 
 def run(options):
-    return True
     ip = options['ip']
     port = options['port']
 
