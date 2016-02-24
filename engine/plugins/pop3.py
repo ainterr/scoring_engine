@@ -2,7 +2,6 @@ from  .. import config
 import poplib
 
 def run(options):
-
     ip = options['ip']
     port = options['port']
     username = options['username']

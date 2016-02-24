@@ -6,7 +6,6 @@ import socket
 socket.setdefaulttimeout(5)
 
 def run(options):
-
     ip = options['ip']
     port = options['port']
     username = options['username']

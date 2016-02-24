@@ -12,8 +12,13 @@ def run(options):
 
     test = random.choice(config.DNS_QUERIES)
 
+    res = resolver.Resolver()
+    res.nameservers = [ip]
+    res.lifetime = 2.0
+    res.timeout = 2.0
+
     try:
-        response = resolver.query(test['query'], test['type'])[0].to_text()
+        response = res.query(test['query'], test['type'])[0].to_text()
     except Timeout:
         return False
 
