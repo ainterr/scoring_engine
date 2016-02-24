@@ -1,8 +1,11 @@
-from .. import config
-
-import poplib
+from  .. import config, runas3
+import poplib, sys
 
 def run(options):
+
+    if sys.version_info[0] == 2:
+      return runas3.run_as_python3('pop3', options)
+
     ip = options['ip']
     port = options['port']
     username = options['username']
@@ -23,7 +26,7 @@ def run(options):
             return True
         except:
             pop.quit()
-            pop = POP3(ip, port, 2)
+            pop = poplib.POP3(ip, port, 2)
             pop.stls()
             tries += 1
 

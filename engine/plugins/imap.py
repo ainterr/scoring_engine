@@ -1,11 +1,15 @@
-from .. import config
+from .. import config, runas3
 
 from imaplib import IMAP4
-import socket
+import socket, sys
 
-socket.setdefaulttimeout(2)
+socket.setdefaulttimeout(5)
 
 def run(options):
+
+    if sys.version_info[0] == 2:
+      return runas3.run_as_python3('imap', options)
+
     ip = options['ip']
     port = options['port']
     username = options['username']
@@ -20,13 +24,15 @@ def run(options):
     tries = 0
     while tries < 5:
         try:
+            print(username, password)
             imap.login(username, password)
             imap.logout()
             return True
         except:
+            print("Login Failed")
             imap.logout()
             imap = IMAP4(ip, port)
             imap.starttls()
             tries += 1
-
+            
     return False
