@@ -1,14 +1,11 @@
-from .. import config, runas3
+from .. import config
 
 from imaplib import IMAP4
-import socket, sys
+import socket
 
 socket.setdefaulttimeout(5)
 
 def run(options):
-
-    if sys.version_info[0] == 2:
-      return runas3.run_as_python3('imap', options)
 
     ip = options['ip']
     port = options['port']

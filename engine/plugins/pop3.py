@@ -1,10 +1,7 @@
-from  .. import config, runas3
-import poplib, sys
+from  .. import config
+import poplib
 
 def run(options):
-
-    if sys.version_info[0] == 2:
-      return runas3.run_as_python3('pop3', options)
 
     ip = options['ip']
     port = options['port']

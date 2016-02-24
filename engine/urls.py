@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-import views, poller
+from . import views, poller
 
 import signal
 

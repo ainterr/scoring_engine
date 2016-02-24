@@ -9,7 +9,7 @@ class Plugin(models.Model):
     # Service creates a field here called 'services'
     # Result creates a field here called 'results'
 
-    def __unicode__(self):
+    def __str__(self):
         return '{}'.format(self.name)
 
 class Team(models.Model):
@@ -20,7 +20,7 @@ class Team(models.Model):
     # Credential creates a field here called 'credentials'
     # Result creates a field here called 'results'
 
-    def __unicode__(self):
+    def __str__(self):
         return '{}, id={}'.format(self.name, self.id)
 
 class UserProfile(models.Model):
@@ -28,7 +28,7 @@ class UserProfile(models.Model):
 
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='users')
 
-    def __unicode__(self):
+    def __str__(self):
         return '{} team={}'.format(self.user, self.team.id)
 
 class Service(models.Model):
@@ -41,7 +41,7 @@ class Service(models.Model):
 
     # Result creates a field here called 'results'
 
-    def __unicode__(self):
+    def __str__(self):
         return '{} ip={}, port={}, team={}, plugin={}'.format(
             self.name, 
             self.ip, 
@@ -56,7 +56,7 @@ class Credential(models.Model):
 
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='credentials')
 
-    def __unicode__(self):
+    def __str__(self):
         return '{}:{}'.format(self.username, self.password)
 
 class Result(models.Model):
@@ -66,5 +66,5 @@ class Result(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='results')
     plugin = models.ForeignKey(Plugin, on_delete=models.CASCADE, related_name='results')
 
-    def __unicode__(self):
+    def __str__(self):
         return '{}'.format('PASSED' if self.status else 'FAILED')
