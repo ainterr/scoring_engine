@@ -23,7 +23,6 @@ def poll():
 
     for team in models.Team.objects.all():
         credential = team.credentials.order_by('?').first()
-        print(len(team.services.all()))
         for service in team.services.all():
             options = {}
             options['ip'] = service.ip
