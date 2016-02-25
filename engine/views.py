@@ -3,19 +3,8 @@ from django.http import HttpResponse
 
 from . import models
 
-def index(request):
-    return render(request, 'index.html', {})
-
-def status(request):
-    context = {}
-
-    # For now we're hardcoding a team name
-    try:
-        team = models.Team.objects.get(name='NUCCDC')
-    except models.Team.DoesNotExist:
-        return render(request, 'not_found.html', context)
-
-    context['results'] = []
+def get_status(team):
+    check_results = []
     for service in team.services.all():
         results = service.results
 
@@ -34,7 +23,7 @@ def status(request):
             percent = '{:.2f}'.format(0.0)
             style = 'default'
 
-        context['results'].append({
+        check_results.append({
             'service': service.name,
             'status': status,
             'passed': total_passed,
@@ -42,5 +31,32 @@ def status(request):
             'percent': percent,
             'style': style
         })
+
+    return check_results
+
+def index(request):
+    context = {}
+
+    teams = models.Team.objects.all()
+
+    context['teams'] = []
+    for team in teams:
+        context['teams'].append({
+            'name': team.name,
+            'id': team.id,
+            'results': get_status(team)
+        })
+
+    return render(request, 'index.html', context)
+
+def status(request, pk=None):
+    context = {}
+
+    try:
+        team = models.Team.objects.get(pk=pk)
+    except models.Team.DoesNotExist:
+        return render(request, 'not_found.html', context)
+
+    context['results'] = get_status(team)
 
     return render(request, 'status.html', context)

@@ -38,7 +38,31 @@ SMTP_ADDRESSES = [
 
 # Team Config
 TEAMS = [
-    { 'name': 'NUCCDC', 
+    { 'name': 'Team 1', 
+        'services': [
+            { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
+        ], 
+        'credentials': [
+            { 'username':'joe', 'password':'Sup3rSecret!' }
+        ]
+    },
+    { 'name': 'Team 2', 
+        'services': [
+            { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
+        ], 
+        'credentials': [
+            { 'username':'joe', 'password':'Sup3rSecret!' }
+        ]
+    },
+    { 'name': 'Team 3', 
+        'services': [
+            { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
+        ], 
+        'credentials': [
+            { 'username':'joe', 'password':'Sup3rSecret!' }
+        ]
+    },
+    { 'name': 'Team 4', 
         'services': [
             { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
         ], 

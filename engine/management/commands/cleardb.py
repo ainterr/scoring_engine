@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
         while True:
             sys.stdout.write("This will delete all data in the databse. Are you sure? [y/N] ")
-            choice = raw_input().lower()
+            choice = input().lower()
 
             if choice == '': return
             if choice in valid:

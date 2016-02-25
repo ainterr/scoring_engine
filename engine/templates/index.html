@@ -2,6 +2,38 @@
 
 {% block index %}active{% endblock %}
 
+{% block head %}<meta http-equiv="refresh" content="5">{% endblock %}
+
 {% block content %}
 <h1>Scoring Engine</h1>
+
+{% for t in teams %}
+<div class="col-md-6">
+<a class="undecorate" href="{% url 'status' %}{{ t.id }}/">
+<div class="panel panel-default">
+<div class="panel-body">
+<h3>{{ t.name }}</h3>
+<table class="table">
+<thead>
+<tr>
+<th>Service</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+{% for r in t.results %}
+<tr class="{{ r.style }}">
+<td>{{ r.service }}</td>
+<td>{{ r.status }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+</a>
+</div>
+{% endfor %}
+
 {% endblock %}
