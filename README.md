@@ -11,6 +11,7 @@ use in our practice sessions.
 - Django v1.9
 - dnspython3
 - pysmb
+- pymysql
 - pymssql
 - freetds-dev
 
@@ -19,7 +20,7 @@ use in our practice sessions.
 
 `apt-get install freetds-dev`
 
-`pip3 install django dnspython3 pysmb pymssql`
+`pip3 install django dnspython3 pysmb pymysql pymssql`
 
 2. Setup the sqlite databse
 
@@ -47,6 +48,10 @@ The Scoring Engine should now be accessable at http://localhost:8000.
 - IMAP
 - POP3
 - SMTP
+- SMB
+- MYSQL
+- MSSQL
+- Ping
 - More to come...
 
 ### Writing Plugins

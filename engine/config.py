@@ -31,6 +31,15 @@ MSSQL_USERS = [
     { 'username':'WARPED\\Administrator', 'password':'P@ssword1' },
 ]
 
+### MYSQL
+MYSQL_QUERIES = [
+    { 'db': 'mysql', 'query': 'SELECT password FROM user WHERE user=\'root\' AND host=\'localhost\'', 'response': '*9CFBBC772F3F6C106020035386DA5BBBF1249A11' }
+]
+
+MYSQL_USERS = [
+    { 'username':'root', 'password':'toor' },
+]
+
 ### SMTP
 SMTP_ADDRESSES = [
     'test@someemail.com',
