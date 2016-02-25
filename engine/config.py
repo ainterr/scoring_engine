@@ -2,7 +2,7 @@
 
 ### HTTP
 HTTP_PAGES = [
-    { 'url':'/', 'checksum':'12345ABCDEF' },
+    { 'url':'', 'checksum':'12345ABCDEF' },
 ]
 
 ### DNS
