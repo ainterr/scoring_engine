@@ -22,6 +22,15 @@ SMB_FILES = [
 
 SMB_CONFIG = { 'domain':'TEAM' }
 
+### MSSQL
+MSSQL_QUERIES = [
+    { 'db': 'employee_data', 'query': 'SELECT SSN FROM dbo.hr_info WHERE LastName LIKE \'Erikson\'', 'response': '122751924' },
+]
+
+MSSQL_USERS = [
+    { 'username':'WARPED\\Administrator', 'password':'P@ssword1' },
+]
+
 ### SMTP
 SMTP_ADDRESSES = [
     'test@someemail.com',
