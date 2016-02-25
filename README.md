@@ -10,11 +10,12 @@ use in our practice sessions.
 
 - Django v1.9
 - dnspython3
+- pysmb
 
 ### Installing
 1. Install dependencies:
 
-`pip3 install django dnspython3`
+`pip3 install django dnspython3 pysmb`
 
 2. Setup the sqlite databse
 
