@@ -15,6 +15,13 @@ FTP_FILES = [
     { 'path':'/testfile.txt', 'checksum':'12345ABCDEF' },
 ]
 
+### SMB
+SMB_FILES = [
+    { 'sharename':'ftp', 'path':'/testfile.txt', 'checksum':'e05fcb614ab36fdee72ee1f2754ed85e2bd0e8d0' },
+]
+
+SMB_CONFIG = { 'domain':'TEAM' }
+
 ### SMTP
 SMTP_ADDRESSES = [
     'test@someemail.com',
