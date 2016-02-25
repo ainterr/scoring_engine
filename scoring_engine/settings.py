@@ -1,8 +1,8 @@
 import os
+import logging
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -60,6 +60,43 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'scoring_engine.wsgi.application'
 
+# Supress noisy request logger
+logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+# Logging config
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S",
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        }
+    },
+    'loggers': {
+        'engine': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases

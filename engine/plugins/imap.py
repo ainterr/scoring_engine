@@ -20,12 +20,10 @@ def run(options):
     tries = 0
     while tries < 5:
         try:
-            print(username, password)
             imap.login(username, password)
             imap.logout()
             return True
         except:
-            print("Login Failed")
             imap.logout()
             imap = IMAP4(ip, port)
             imap.starttls()

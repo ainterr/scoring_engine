@@ -4,6 +4,9 @@ import pkgutil
 
 from . import models, settings, plugins
 
+import logging
+logger = logging.getLogger(__name__)
+
 PLUGINS = {}
 
 def get_plugins():
@@ -21,9 +24,15 @@ def get_plugins():
 def poll():
     global PLUGINS
 
+    logger.info('Polling...')
+
     for team in models.Team.objects.all():
+        logger.debug('Running plugins for Team {}'.format(team.name))
+
         credential = team.credentials.order_by('?').first()
         for service in team.services.all():
+            logger.debug('Polling Service {} with credential {}:{}'.format(service.name, credential.username, credential.password))
+
             options = {}
             options['ip'] = service.ip
             options['port'] = service.port
@@ -32,14 +41,16 @@ def poll():
 
             try: plugin = PLUGINS[service.plugin.name]
             except KeyError:
-                print('Error: no module found for configured plugin: {}'.format(service.plugin.name))
+                logger.error('Error: no module found for configured plugin: {}'.format(service.plugin.name))
                 continue
                 
             try:
                 success = plugin.run(options)
             except Exception as e:
-                print('Error: Plugin {} threw exception {}'.format(service.plugin.name, e))
-                success = False
+                logger.error('Error: Plugin {} threw exception {}'.format(service.plugin.name, e))
+                continue
+
+            logger.debug('{} {} - {}'.format(team.name, service.name, 'PASSED' if success else 'FAILED'))
 
             models.Result(
                 team=team, 
@@ -47,6 +58,8 @@ def poll():
                 plugin=service.plugin, 
                 status=success
             ).save()
+
+    logger.debug('Poll complete')
 
 class PollingThread(Thread):
     def __init__(self, interval):
