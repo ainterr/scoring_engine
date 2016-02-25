@@ -12,10 +12,6 @@ use in our practice sessions.
 - dnspython3
 - pysmb
 
-### Database Schema
-
-Coming Soon...
-
 ### Installing
 1. Install dependencies:
 
@@ -59,4 +55,4 @@ the name of the associated module.
 
 ### License
 
-This project is open source under the MIT public license. See license.txt.
+This project is open source under the MIT public license. See [license.txt](license.txt).
