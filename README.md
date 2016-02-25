@@ -11,11 +11,15 @@ use in our practice sessions.
 - Django v1.9
 - dnspython3
 - pysmb
+- pymssql
+- freetds-dev
 
 ### Installing
 1. Install dependencies:
 
-`pip3 install django dnspython3 pysmb`
+`apt-get install freetds-dev`
+
+`pip3 install django dnspython3 pysmb pymssql`
 
 2. Setup the sqlite databse
 
