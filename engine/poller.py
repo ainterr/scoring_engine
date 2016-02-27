@@ -29,8 +29,9 @@ def poll():
     for team in models.Team.objects.all():
         logger.debug('Running plugins for Team {}'.format(team.name))
 
-        credential = team.credentials.order_by('?').first()
         for service in team.services.all():
+            credential = service.credentials.order_by('?').first()
+
             logger.debug('Polling Service {} with credential {}:{}'.format(service.name, credential.username, credential.password))
 
             options = {}

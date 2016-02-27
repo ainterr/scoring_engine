@@ -10,7 +10,7 @@ class Command(BaseCommand):
         pass
 
     def handle(self, *args, **options):
-        # TODO handle already-built DB
+        # TODO error handling - this is very fragile
         for team in config.TEAMS:
             t = models.Team(name=team['name'])
             t.save()
@@ -33,3 +33,10 @@ class Command(BaseCommand):
                 )
                 c.save()
 
+                for service in credential['services']:
+                    try:
+                        c.services.add(t.services.get(name=service))
+                    except models.Service.DoesNotExist:
+                        continue
+
+                c.save()

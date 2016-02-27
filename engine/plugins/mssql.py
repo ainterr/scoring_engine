@@ -5,11 +5,13 @@ def run(options):
     socket.setdefaulttimeout(2)
 
     ip = options['ip']
-    cred = random.choice(config.MSSQL_USERS)
+    username = options['username']
+    password = options['password']
+
     test = random.choice(config.MSSQL_QUERIES)
 
     try:
-        conn = pymssql.connect(ip, cred['username'], cred['password'], test['db'])
+        conn = pymssql.connect(ip, '{}\\{}'.format(config.DOMAIN, username), password, test['db'])
         cursor = conn.cursor()
         cursor.execute(test['query'])
         response = ' '.join([str(row[0]) for row in cursor.fetchall()])

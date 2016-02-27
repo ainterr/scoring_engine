@@ -4,10 +4,8 @@ import pymysql, random
 def run(options):
     ip = options['ip']
     port = options['port']
-
-    cred = random.choice(config.MYSQL_USERS)
-    username = cred['username']
-    password = cred['password']
+    username = options['username']
+    password = options['password']
 
     test = random.choice(config.MYSQL_QUERIES)
 

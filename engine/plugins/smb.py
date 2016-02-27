@@ -10,7 +10,7 @@ def run(options):
 
     test = random.choice(config.SMB_FILES)
 
-    conn = SMBConnection(username, password, '', 'Web-app', config.SMB_CONFIG['domain'])
+    conn = SMBConnection(username, password, '', 'Web-app', config.DOMAINb)
     conn.connect(ip, port)
     t = tempfile.TemporaryFile()
     conn.retrieveFile(test['sharename'], test['path'], t)

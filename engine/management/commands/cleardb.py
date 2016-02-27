@@ -3,7 +3,7 @@ from engine import models
 import sys
 
 class Command(BaseCommand):
-    help = 'This will blow away all data in the database. USE THIS WITH CAUTION'
+    help = 'This will blow away all data in the database. USE THIS WITH CAUTION. Note: This will not clear the database schema - you should run migrations if there were database changes'
     
     def add_arguments(self, parser):
         pass

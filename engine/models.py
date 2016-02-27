@@ -40,6 +40,7 @@ class Service(models.Model):
     plugin = models.ForeignKey(Plugin, on_delete=models.CASCADE, related_name='services')
 
     # Result creates a field here called 'results'
+    # Credential creates a field here called 'credentials'
 
     def __str__(self):
         return '{} ip={}, port={}, team={}, plugin={}'.format(
@@ -55,6 +56,8 @@ class Credential(models.Model):
     password = models.CharField(max_length=40, blank=False)
 
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='credentials')
+
+    services = models.ManyToManyField(Service, related_name='credentials')
 
     def __str__(self):
         return '{}:{}'.format(self.username, self.password)
