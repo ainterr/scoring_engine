@@ -32,6 +32,10 @@ def poll():
         for service in team.services.all():
             credential = service.credentials.order_by('?').first()
 
+            if credential is None:
+                logger.warning('No credentials configured for service {}'.format(service.name))
+                continue
+
             logger.debug('Polling Service {} with credential {}:{}'.format(service.name, credential.username, credential.password))
 
             options = {}

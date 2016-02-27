@@ -8,6 +8,11 @@ HTTP_PAGES = [
     { 'url':'', 'checksum':'12345ABCDEF' },
 ]
 
+### HTTPS
+HTTPS_PAGES = [
+    { 'url':'', 'checksum':'12345ABCDEF' },
+]
+
 ### DNS
 DNS_QUERIES = [
     { 'type':'A', 'query':'ns.google.com', 'expected':'216.239.32.10' },
@@ -67,9 +72,10 @@ TEAMS = [
     { 'name': 'Team 4', 
         'services': [
             { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
+            { 'name':'https', 'ip':'10.0.0.100', 'port':443 },
         ], 
         'credentials': [
-            { 'username':'joe', 'password':'Sup3rSecret!', 'services':['http'] }
+            { 'username':'joe', 'password':'Sup3rSecret!', 'services':['http', 'https'] }
         ]
     },
 ]

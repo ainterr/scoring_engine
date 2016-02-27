@@ -2,7 +2,8 @@ from django.core.management.base import BaseCommand, CommandError
 
 from engine import models, poller
 
-import sys
+import logging
+logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = 'This generates database models for the newly added plugins. It should be run every time plugins are changed'
@@ -16,6 +17,6 @@ class Command(BaseCommand):
 
             if matches.count() == 0:
                 models.Plugin(name=plugin).save()
-                print('Registered plugin {}'.format(plugin))
+                logger.info('Registered plugin {}'.format(plugin))
             else:
-                print('Plugin {} already registered'.format(plugin))
+                logger.info('Plugin {} already registered'.format(plugin))
