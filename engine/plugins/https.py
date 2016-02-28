@@ -1,5 +1,7 @@
 from .. import config
 
+import logging
+logger=logging.getLogger(__name__)
 import requests
 from requests.exceptions import *
 import hashlib, random
@@ -14,7 +16,7 @@ def run(options):
         r = requests.get('https://{}:{}/{}'.format(ip, port, test['url']), verify=False, timeout=2)
 
         if r.status_code is not 200:
-            print(r.status_code)
+            logger.debug(r.status_code)
             return False
 
         sha1 = hashlib.sha1()
@@ -24,8 +26,8 @@ def run(options):
         if checksum == test['checksum']:
             return True
     except Timeout:
-        print("Timeout")
+        logger.debug("Timeout")
         return False
 
-    print("Bad checksum")
+    logger.debug("Bad checksum")
     return False
