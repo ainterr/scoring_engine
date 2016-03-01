@@ -15,7 +15,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -69,11 +68,13 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format' : "[%(asctime)s] %(levelname)s: %(message)s",
+            'format' : "[%(asctime)s] %(levelname)s [%(module)s] %(message)s",
             'datefmt' : "%d/%b/%Y %H:%M:%S",
         },
-        'simple': {
-            'format': '%(levelname)s %(message)s',
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
         },
     },
     'handlers': {
@@ -92,6 +93,7 @@ LOGGING = {
     'loggers': {
         'engine': {
             'handlers': ['console', 'file'],
+            'filters': ['require_debug_true'],
             'level': 'DEBUG',
             'propagate': True,
         },

@@ -24,7 +24,7 @@ def get_plugins():
 def poll():
     global PLUGINS
 
-    logger.info('Polling...')
+    logger.info('Starting poll')
 
     for team in models.Team.objects.all():
         logger.debug('Running plugins for Team {}'.format(team.name))
@@ -64,7 +64,7 @@ def poll():
                 status=success
             ).save()
 
-    logger.debug('Poll complete')
+    logger.info('Poll complete')
 
 class PollingThread(Thread):
     def __init__(self, interval):
