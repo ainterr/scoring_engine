@@ -71,6 +71,7 @@ class PollingThread(Thread):
         Thread.__init__(self)
         self.stop_event = Event()
         self.interval = interval
+        self.daemon = True
 
     def stop(self):
         if self.isAlive() == True:

@@ -48,9 +48,11 @@ TEAMS = [
     { 'name': 'Team 1', 
         'services': [
             { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
+            { 'name':'ping', 'ip':'8.8.8.8', 'port':0 },
+            { 'name':'ping', 'ip':'8.8.4.4', 'port':0 },
         ], 
         'credentials': [
-            { 'username':'joe', 'password':'Sup3rSecret!', 'services':['http'] }
+            { 'username':'joe', 'password':'Sup3rSecret!', 'services':['http', 'ping'] }
         ]
     },
     { 'name': 'Team 2', 
