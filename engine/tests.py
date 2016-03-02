@@ -335,3 +335,79 @@ class ManagementTests(TestCase):
         service_count = credential.services.count()
 
         self.assertEqual(service_count, 0)
+
+class ModelsTests(TestCase):
+    def setup_db(self):
+        t = models.Team(name='test')
+        t.save()
+        p = models.Plugin(name='http')
+        p.save()
+        s = models.Service(name='svc', ip='10.0.0.1', port='80', team=t, plugin=p)
+        s.save()
+        c = models.Credential(username='user', password='password', team=t)
+        c.save()
+        r = models.Result(status=True, plugin=p, team=t, service=s)
+        r.save()
+
+    def get_counts(self):
+        t = models.Team.objects.count()
+        s = models.Service.objects.count()
+        r = models.Result.objects.count()
+        c = models.Credential.objects.count()
+        p = models.Plugin.objects.count()
+
+        return t, s, r, c, p
+
+    def test_team_delete_removes_services_results_credentials_and_users(self):
+        """
+        deleting a team should delete it's services, results, credentias, and
+        users from the database but not plugins.
+        """
+        self.setup_db()
+
+        t = models.Team.objects.first()
+        t.delete()
+
+        t, s, r, c, p = self.get_counts()
+
+        self.assertEqual(t, 0)
+        self.assertEqual(s, 0)
+        self.assertEqual(r, 0)
+        self.assertEqual(c, 0)
+        self.assertEqual(p, 1)
+
+    def test_plugin_delete_removes_services_and_results(self):
+        """
+        deleting a plugin should delete it's corresponding services and results
+        but not the team or it's credentials.
+        """
+        self.setup_db()
+
+        p = models.Plugin.objects.first()
+        p.delete()
+
+        t, s, r, c, p = self.get_counts()
+
+        self.assertEqual(t, 1)
+        self.assertEqual(s, 0)
+        self.assertEqual(r, 0)
+        self.assertEqual(c, 1)
+        self.assertEqual(p, 0)
+
+    def test_service_delete_removes_results(self):
+        """
+        deleting a plugin should delete it's corresponding services and results
+        but not the team or it's credentials.
+        """
+        self.setup_db()
+
+        s = models.Service.objects.first()
+        s.delete()
+
+        t, s, r, c, p = self.get_counts()
+
+        self.assertEqual(t, 1)
+        self.assertEqual(s, 0)
+        self.assertEqual(r, 0)
+        self.assertEqual(c, 1)
+        self.assertEqual(p, 1)

@@ -27,12 +27,8 @@ use in our practice sessions.
 
 `python3 manage.py migrate`
 
-3. Register Plugins
-
-`python3 manage.py registerplugins`
-
-3. Customize the configuration in `/engine/config.py` and apply the config to
-the database with:
+3. Customize the configuration in `/engine/config.py`. Then, register plugins
+and apply the config to the database with:
 
 `python3 manage.py configure`
 

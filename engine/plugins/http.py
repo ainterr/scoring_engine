@@ -24,5 +24,7 @@ def run(options):
 
     except Timeout:
         return False
+    except ConnectionError:
+        return False
 
     return False

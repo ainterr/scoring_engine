@@ -1,6 +1,10 @@
 from django.core.management.base import BaseCommand, CommandError
 from engine import models
+
 import sys
+
+import logging
+logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = 'This will blow away all data in the database. USE THIS WITH CAUTION. Note: This will not clear the database schema - you should run migrations if there were database changes'
@@ -30,4 +34,4 @@ class Command(BaseCommand):
         models.Service.objects.all().delete()
         models.Plugin.objects.all().delete()
 
-        print("Database cleared")
+        logger.info("Database cleared")

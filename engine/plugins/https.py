@@ -28,6 +28,8 @@ def run(options):
     except Timeout:
         logger.debug("Timeout")
         return False
+    except ConnectionError:
+        return False
 
     logger.debug("Bad checksum")
     return False
