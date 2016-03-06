@@ -86,3 +86,51 @@ def teams(request):
     context['form'] = forms.ModelFormFactory(models.Team)
     
     return render(request, 'teams.html', context)
+
+@login_required
+@user_passes_test(is_admin, login_url='index', redirect_field_name=None)
+def team_detail(request, pk):
+    context = {}
+
+    if request.method == 'POST':
+        if 'delete' in request.POST:
+            if request.POST['type'] == 'user':
+                model = models.User.objects.get(pk=request.POST['id'])
+            if request.POST['type'] == 'service':
+                model = models.Service.objects.get(pk=request.POST['id'])
+            if request.POST['type'] == 'credential':
+                model = models.Credential.objects.get(pk=request.POST['id'])
+
+            model.delete()
+        elif 'reset' in request.POST:
+            model = models.User.objects.get(pk=request.POST['id'])
+            model.set_password(request.POST['password'])
+            model.save()
+        else:
+            if request.POST['type'] == 'user':
+                form = forms.UserForm(request.POST)
+            if request.POST['type'] == 'service':
+                form = forms.ModelFormFactory(models.Service)(request.POST)
+            if request.POST['type'] == 'credential':
+                form = forms.ModelFormFactory(models.Credential)(request.POST)
+
+            if form.is_valid():
+                form.save()
+            else:
+                context['invalid_'+request.POST['type']] = True
+
+
+    try:
+        team = models.Team.objects.get(pk=pk)
+    except models.Team.DoesNotExist:
+        return render(request, 'not_found.html', context)
+
+    context['team'] = team
+    context['users'] = team.users.all()
+    context['user_form'] = forms.UserForm
+    context['services'] = team.services.all()
+    context['service_form'] = forms.ModelFormFactory(models.Service)
+    context['credentials'] = team.credentials.all()
+    context['credential_form'] = forms.ModelFormFactory(models.Credential)
+
+    return render(request, 'team_detail.html', context)

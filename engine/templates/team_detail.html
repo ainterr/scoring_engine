@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% load bootstrap3 %}
+
+{% block teams %}active{% endblock %}
+
+{% block content %}
+<h1>Team: {{ team.name }}</h1>
+
+<h2>Users</h2>
+<table class="table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Username</th>
+<th>Password</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+{% for u in users %}
+<tr>
+<td>{{ u.pk }}</td>
+<td>{{ u.username }}</td>
+<td>
+<button class="btn btn-default btn-reset" data-toggle="modal" data-target="#resetModal" transfer="{{ u.pk }}">Reset</button>
+</td>
+<td>
+<form method="post" action="{% url 'team_detail' team.pk %}">
+{% csrf_token %}
+<input type='hidden' name='type' value='user' />
+<input type='hidden' name='delete' value='true' />
+<input type='hidden' name='id' value='{{ u.pk }}' />
+<button class="btn btn-danger pull-right">
+<span class="glyphicon glyphicon-trash"></span>
+</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+<tr>
+<td colspan="5">
+<button class="btn btn-success" data-toggle="modal" data-target="#userModal">
+<span class="glyphicon glyphicon-plus"></span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+
+<h2>Services</h2>
+<table class="table">
+<thead>
+<tr>
+<th>ID</th>
+<th>IP</th>
+<th>Port</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+{% for s in services %}
+<tr>
+<td>{{ s.pk }}</td>
+<td>{{ s.name }}</td>
+<td>{{ s.port }}</td>
+<td>
+<form method="post" action="{% url 'team_detail' team.pk %}">
+{% csrf_token %}
+<input type='hidden' name='type' value='service' />
+<input type='hidden' name='delete' value='true' />
+<input type='hidden' name='id' value='{{ s.pk }}' />
+<button class="btn btn-danger pull-right">
+<span class="glyphicon glyphicon-trash"></span>
+</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+<tr>
+<td colspan="4">
+<button class="btn btn-success" data-toggle="modal" data-target="#serviceModal">
+<span class="glyphicon glyphicon-plus"></span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+
+<h2>Credentials</h2>
+<table class="table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Username</th>
+<th>Password</th>
+<th>Services</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+{% for c in credentials %}
+<tr>
+<td>{{ c.pk }}</td>
+<td>{{ c.username }}</td>
+<td>{{ c.password }}</td>
+<td>{{ c.services }}</td>
+<td>
+<form method="post" action="{% url 'team_detail' team.pk %}">
+{% csrf_token %}
+<input type='hidden' name='type' value='credential' />
+<input type='hidden' name='delete' value='true' />
+<input type='hidden' name='id' value='{{ c.pk }}' />
+<button class="btn btn-danger pull-right">
+<span class="glyphicon glyphicon-trash"></span>
+</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+<tr>
+<td colspan="5">
+<button class="btn btn-success" data-toggle="modal" data-target="#credentialModal">
+<span class="glyphicon glyphicon-plus"></span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+
+{% endblock %}
+
+{% block after %}
+<div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title" id="userModalLabel">New User</h4>
+</div>
+<div class="modal-body">
+<form method="post" action="{% url 'team_detail' team.pk %}">
+{% csrf_token %}
+{% bootstrap_form user_form %}
+</div>
+<div class="modal-footer">
+<input type='hidden' name='type' value='user' />
+<input type="submit" class="btn btn-success" />
+</form>
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="serviceModal" tabindex="-1" role="dialog" aria-labelledby="serviceModalLabel">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title" id="serviceModalLabel">New Service</h4>
+</div>
+<div class="modal-body">
+<form method="post" action="{% url 'team_detail' team.pk %}">
+{% csrf_token %}
+{% bootstrap_form service_form %}
+</div>
+<div class="modal-footer">
+<input type='hidden' name='type' value='service' />
+<input type="submit" class="btn btn-success" />
+</form>
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="credentialModal" tabindex="-1" role="dialog" aria-labelledby="credentialModalLabel">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title" id="credentialModalLabel">New Credential</h4>
+</div>
+<div class="modal-body">
+<form method="post" action="{% url 'team_detail' team.pk %}">
+{% csrf_token %}
+{% bootstrap_form credential_form %}
+</div>
+<div class="modal-footer">
+<input type='hidden' name='type' value='credential' />
+<input type="submit" class="btn btn-success" />
+</form>
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="resetModal" tabindex="-1" role="dialog" aria-labelledby="resetModalLabel">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title" id="resetModalLabel">Reset Password</h4>
+</div>
+<div class="modal-body">
+<form method="post" action="{% url 'team_detail' team.pk %}">
+{% csrf_token %}
+<div class="form-group">
+<label class="control-label" for="id_password">New Password</label>
+<input class="form-control" id="id_password" name="password" placeholder="Password" required="required" title="" type="password">
+</div>
+<div class="modal-footer">
+<input type='hidden' name='reset' value='true' />
+<input type='hidden' name='id' value='' receive='btn-reset' />
+<input type="submit" class="btn btn-success" />
+</form>
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
