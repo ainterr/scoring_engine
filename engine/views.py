@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
-from . import models
+from . import models, forms
 
 def get_status(team):
     check_results = []
@@ -35,6 +35,12 @@ def get_status(team):
 
     return check_results
 
+def is_admin(user):
+    return user.is_superuser
+
+def is_not_admin(user):
+    return not user.is_superuser
+
 def index(request):
     context = {}
 
@@ -51,6 +57,7 @@ def index(request):
     return render(request, 'index.html', context)
 
 @login_required
+@user_passes_test(is_not_admin, login_url='index', redirect_field_name=None)
 def status(request):
     team = request.user.team
 
@@ -58,3 +65,24 @@ def status(request):
     context['results'] = get_status(team)
     return render(request, 'status.html', context)
     #return render(request, 'not_found.html', context)
+
+@login_required
+@user_passes_test(is_admin, login_url='index', redirect_field_name=None)
+def teams(request):
+    context = {}
+
+    if request.method == 'POST':
+        if 'delete' in request.POST:
+            team = models.Team.objects.get(pk=request.POST['id'])
+            team.delete()
+        else:
+            form = forms.ModelFormFactory(models.Team)(request.POST)
+            if form.is_valid():
+                form.save()
+            else:
+                context['invalid'] = True
+
+    context['results'] = models.Team.objects.all()
+    context['form'] = forms.ModelFormFactory(models.Team)
+    
+    return render(request, 'teams.html', context)

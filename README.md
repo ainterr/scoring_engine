@@ -9,6 +9,7 @@ use in our practice sessions.
 ### Dependencies
 
 - Django v1.9
+- django-bootstrap3
 - dnspython3
 - paramiko
 - pysmb
@@ -21,7 +22,7 @@ use in our practice sessions.
 
 `apt-get install freetds-dev`
 
-`pip3 install django dnspython3 paramiko pysmb pymysql pymssql`
+`pip3 install django django-bootstrap3 dnspython3 paramiko pysmb pymysql pymssql`
 
 2. Setup the sqlite databse
 

@@ -30,9 +30,7 @@
 
 {% if user.is_authenticated %}
 {% if user.is_superuser %}
-{# TODO #}
-<li class="{% block teams %}{% endblock %}"><a href="{% url 'index' %}">Teams</a></li>
-<li class="{% block users %}{% endblock %}"><a href="{% url 'index' %}">Users</a></li>
+<li class="{% block teams %}{% endblock %}"><a href="{% url 'teams' %}">Teams</a></li>
 {% else %}
 <li class="{% block status %}{% endblock %}"><a href="{% url 'status' %}">Status</a></li>
 {# TODO #}
@@ -58,6 +56,26 @@
 {% block content %}
 
 {% endblock %}
+</div>
+
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title" id="modalLabel">{% block modal_title %}{% endblock %}</h4>
+</div>
+<div class="modal-body">
+{% block modal_body %}
+{% endblock %}
+</div>
+<div class="modal-footer">
+{% block modal_footer %}
+{% endblock %}
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
 </div>
 
 <script src="{% static 'js/jquery.js' %}"></script>
