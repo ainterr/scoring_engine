@@ -30,7 +30,7 @@ use in our practice sessions.
 3. Customize the configuration in `/engine/config.py`. Then, register plugins
 and apply the config to the database with:
 
-`python3 manage.py configure`
+`python3 manage.py loadconf`
 
 4. Start the server
 

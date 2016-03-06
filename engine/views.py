@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
 from . import models
 
@@ -49,14 +50,11 @@ def index(request):
 
     return render(request, 'index.html', context)
 
-def status(request, pk=None):
+@login_required
+def status(request):
+    team = request.user.team
+
     context = {}
-
-    try:
-        team = models.Team.objects.get(pk=pk)
-    except models.Team.DoesNotExist:
-        return render(request, 'not_found.html', context)
-
     context['results'] = get_status(team)
-
     return render(request, 'status.html', context)
+    #return render(request, 'not_found.html', context)
