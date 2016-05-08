@@ -29,7 +29,4 @@ def run(options):
 
     checksum = sha1.hexdigest()
 
-    if checksum == test['checksum']:
-        return True
-
-    return False
+    return checksum == test['checksum']

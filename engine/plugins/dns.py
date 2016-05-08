@@ -14,13 +14,11 @@ def run(options):
     res.nameservers = [ip]
     res.lifetime = 2.0
     res.timeout = 2.0
+    res.port = port
 
     try:
         response = res.query(test['query'], test['type'])[0].to_text()
     except Timeout:
         return False
 
-    if response == test['expected']:
-        return True
-
-    return False
+    return response == test['expected']
