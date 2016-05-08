@@ -5,7 +5,7 @@ DOMAIN = 'WARPED'
 
 ### HTTP
 HTTP_PAGES = [
-    { 'url':'', 'checksum':'12345ABCDEF' },
+    { 'url':'', 'expected':'index.html', 'tolerance': 0.05 },
 ]
 
 ### HTTPS
@@ -47,12 +47,11 @@ SMTP_ADDRESSES = [
 TEAMS = [
     { 'name': 'Team 1', 
         'services': [
-            { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
-            { 'name':'ping', 'ip':'8.8.8.8', 'port':0 },
-            { 'name':'ping', 'ip':'8.8.4.4', 'port':0 },
+            { 'name':'http', 'ip':'172.16.66.152', 'port':80 },
+            { 'name':'ssh', 'ip':'172.16.66.152', 'port':22 },
         ], 
         'credentials': [
-            { 'username':'joe', 'password':'Sup3rSecret!', 'services':['http', 'ping'] }
+            { 'username':'joe', 'password':'Sup3rSecret!', 'services':['http, ssh'] }
         ]
     },
     { 'name': 'Team 2', 
