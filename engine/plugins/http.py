@@ -9,7 +9,11 @@ def run(options):
     port = options['port']
 
     test = random.choice(config.HTTP_PAGES)
-    expected = open('engine/http_pages/%s' % test['expected'], 'r')
+    try:
+        expected = open('engine/http_pages/%s' % test['expected'], 'r')
+    except:
+        logger.debug('Could not open file engine/http_pages/%s' % test['expected'])
+
     tolerance = test['tolerance']
 
     try:
@@ -26,10 +30,16 @@ def run(options):
         headings = [line for line in diff_lines if line[0] == '@']
         diffs = [line for line in diff_lines if line[0] in ['+', '-']]
         
+        print(headings)
         num_diff = 0
         for heading in headings:
             locations = heading.split(' ')[1:-1]
-            lengths = [int(locations[i].split(',')[1]) for i in range(2)]
+            lengths = []
+            for location in locations:
+                if ',' in location:
+                    lengths.append(int(location.split(',')[1]))
+                else:
+                    lengths.append(0)
             num_diff += abs(lengths[1] - lengths[0])
         num_diff += (len(diffs) - num_diff) / 2
 

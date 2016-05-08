@@ -10,7 +10,7 @@ HTTP_PAGES = [
 
 ### HTTPS
 HTTPS_PAGES = [
-    { 'url':'', 'checksum':'12345ABCDEF' },
+    { 'url':'', 'expected':'index.html', 'tolerance': 0.05 },
 ]
 
 ### DNS
@@ -49,9 +49,10 @@ TEAMS = [
         'services': [
             { 'name':'http', 'ip':'172.16.66.152', 'port':80 },
             { 'name':'ssh', 'ip':'172.16.66.152', 'port':22 },
+            { 'name':'dns', 'ip':'172.16.66.152', 'port':53 },
         ], 
         'credentials': [
-            { 'username':'joe', 'password':'Sup3rSecret!', 'services':['http, ssh'] }
+            { 'username':'joe', 'password':'Sup3rSecret!', 'services':['http, ssh', 'dns'] }
         ]
     },
     { 'name': 'Team 2', 
