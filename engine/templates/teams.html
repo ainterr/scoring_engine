@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% load bootstrap3 %}
+
+{% block teams %}active{% endblock %}
+
+{% block content %}
+<h1>Teams</h1>
+
+{% if invalid %}
+<div class="alert alert-danger alert-danger-dismissable" role="alert">
+<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+Invalid Team
+</div>
+{% endif %}
+
+<table class="table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+{% for r in results %}
+<tr class='clickable-row' data-href='{{ r.pk }}/'>
+<td>{{ r.pk }}</td>
+<td>{{ r.name }}</td>
+<td>
+<form method="post" action="{% url 'teams' %}">
+{% csrf_token %}
+<input type='hidden' name='delete' value='true' />
+<input type='hidden' name='id' value='{{ r.pk }}' />
+<button class="btn btn-danger pull-right">
+<span class="glyphicon glyphicon-trash"></span>
+</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+<tr>
+<td colspan="3">
+<button class="btn btn-success" data-toggle="modal" data-target="#modal">
+<span class="glyphicon glyphicon-plus"></span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+
+{% endblock %}
+
+{% block after %}
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title" id="modalLabel">New Team</h4>
+</div>
+<div class="modal-body">
+<form method="post" action="{% url 'teams' %}">
+{% csrf_token %}
+{% bootstrap_form form %}
+</div>
+<div class="modal-footer">
+<input type="submit" class="btn btn-success" />
+</form>
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}

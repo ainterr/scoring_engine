@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import User
 from django.db import models
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 class Plugin(models.Model):
     name = models.CharField(max_length=20, blank=False)
@@ -13,7 +13,7 @@ class Plugin(models.Model):
         return '{}'.format(self.name)
 
 class Team(models.Model):
-    name = models.CharField(max_length=20, blank=False)
+    name = models.CharField(max_length=20, blank=False, unique=True)
 
     # UserProfile creates a field here called 'users'
     # Service creates a field here called 'services'
@@ -23,13 +23,41 @@ class Team(models.Model):
     def __str__(self):
         return '{}, id={}'.format(self.name, self.id)
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class UserManager(BaseUserManager):
+    def _create_user(self, username, password, **extra_fields):
+        if not username:
+            raise ValueError('The given username must be set')
 
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='users')
+        user = self.model(username=username, **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_user(self, username, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(username, password, **extra_fields)
+
+    def create_superuser(self, username, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(username, password, **extra_fields)
+
+class User(AbstractUser):
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='users', blank=True, null=True)
+
+    objects = UserManager()
+
+    REQUIRED_FIELDS = []
 
     def __str__(self):
-        return '{} team={}'.format(self.user, self.team.id)
+        return '{} team={}'.format(self.username, self.team.id)
 
 class Service(models.Model):
     name = models.CharField(max_length=20, blank=False)

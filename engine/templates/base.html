@@ -23,9 +23,30 @@
 <span class="icon-bar"></span>
 </button>
 <a class="navbar-brand" href="{% url 'index' %}">Scoring Engine</a>
+</div>
+<div>
 <ul class="nav navbar-nav">
 <li class="{% block index %}{% endblock %}"><a href="{% url 'index' %}">Home</a></li>
+
+{% if user.is_authenticated %}
+{% if user.is_superuser %}
+<li class="{% block teams %}{% endblock %}"><a href="{% url 'teams' %}">Teams</a></li>
+{% else %}
 <li class="{% block status %}{% endblock %}"><a href="{% url 'status' %}">Status</a></li>
+{# TODO #}
+<li class="{% block services %}{% endblock %}"><a href="{% url 'index' %}">Services</a></li>
+<li class="{% block credentials %}{% endblock %}"><a href="{% url 'index' %}">Credentials</a></li>
+{% endif %}
+{% endif %}
+
+</ul>
+<ul class="nav navbar-nav navbar-right">
+{% if user.is_authenticated %}
+<p class="navbar-text">Hello, {{ user.username }}</p>
+<li><a href="{% url 'logout' %}">Logout</a></li>
+{% else %}
+<li><a href="{% url 'login' %}">Login</a></li>
+{% endif %}
 </ul>
 </div>
 </div>
@@ -33,11 +54,14 @@
 
 <div class="container">
 {% block content %}
-
 {% endblock %}
 </div>
 
+{% block after %}
+{% endblock %}
+
 <script src="{% static 'js/jquery.js' %}"></script>
 <script src="{% static 'js/bootstrap.js' %}"></script>
+<script src="{% static 'js/scripts.js' %}"></script>
 </body>
 </html>
