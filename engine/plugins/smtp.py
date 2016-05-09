@@ -10,8 +10,6 @@ message = 'Hello from the Scoring Engine!'
 def run(options):
     ip = options['ip']
     port = options['port']
-    username = options['username']
-    password = options['password']
     
     from_addr = random.choice(config.SMTP_ADDRESSES)
     to_addr = random.choice(config.SMTP_ADDRESSES)

@@ -40,7 +40,8 @@ MYSQL_QUERIES = [
 
 ### SMTP
 SMTP_ADDRESSES = [
-    'test@someemail.com',
+    'joe@team.vnet',
+    'nic@team.vnet',
 ]
 
 # Team Config
@@ -50,9 +51,13 @@ TEAMS = [
             { 'name':'http', 'ip':'172.16.66.152', 'port':80 },
             { 'name':'ssh', 'ip':'172.16.66.152', 'port':22 },
             { 'name':'dns', 'ip':'172.16.66.152', 'port':53 },
+            { 'name':'imap', 'ip':'172.16.66.152', 'port':143 },
+            { 'name':'pop', 'ip':'172.16.66.152', 'port':110 },
+            { 'name':'smtp', 'ip':'172.16.66.152', 'port':25 },
         ], 
         'credentials': [
-            { 'username':'joe', 'password':'Sup3rSecret!', 'services':['http, ssh', 'dns'] }
+            { 'username':'joe', 'password':'test', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp'] },
+            { 'username':'nic', 'password':'toor', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp'] },
         ]
     },
     { 'name': 'Team 2', 

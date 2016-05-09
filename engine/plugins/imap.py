@@ -14,19 +14,8 @@ def run(options):
     try:
         imap = IMAP4(ip, port)
         imap.starttls()
+        imap.login(username, password)
+        imap.logout()
+        return True
     except:
         return False
-
-    tries = 0
-    while tries < 5:
-        try:
-            imap.login(username, password)
-            imap.logout()
-            return True
-        except:
-            imap.logout()
-            imap = IMAP4(ip, port)
-            imap.starttls()
-            tries += 1
-            
-    return False
