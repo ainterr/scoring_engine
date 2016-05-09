@@ -44,6 +44,11 @@ SMTP_ADDRESSES = [
     'nic@team.vnet',
 ]
 
+### LDAP
+LDAP_QUERIES = [
+    { 'dn': '%s@team.vnet', 'base': 'cn=users,dc=team,dc=vnet', 'filter':'(&(objectClass=*)(cn=Administrator))', 'attributes':['sAMAccountName'], 'expected':{'sAMAccountName': ['Administrator']} },
+]
+
 # Team Config
 TEAMS = [
     { 'name': 'Team 1', 
@@ -54,10 +59,12 @@ TEAMS = [
             { 'name':'imap', 'ip':'172.16.66.152', 'port':143 },
             { 'name':'pop', 'ip':'172.16.66.152', 'port':110 },
             { 'name':'smtp', 'ip':'172.16.66.152', 'port':25 },
+            { 'name':'ldap', 'ip':'172.16.66.134', 'port':389 },
         ], 
         'credentials': [
             { 'username':'joe', 'password':'test', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp'] },
             { 'username':'nic', 'password':'toor', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp'] },
+            { 'username':'Administrator', 'password':'P@ssword1', 'services':['ldap'] },
         ]
     },
     { 'name': 'Team 2', 

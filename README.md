@@ -15,14 +15,20 @@ use in our practice sessions.
 - pysmb
 - pymysql
 - pymssql
+- pyldap
 - freetds-dev
+- libsasl2-dev
+- libldap2-dev
+- python-dev
+- libssl-dev
+- libffi-dev
 
 ### Installing
 1. Install dependencies:
 
-`apt-get install freetds-dev`
+`apt-get install freetds-dev libsasl2-dev libldap2-dev python-dev libssl-dev libffi-dev`
 
-`pip3 install django django-bootstrap3 dnspython3 paramiko pysmb pymysql pymssql`
+`pip3 install django django-bootstrap3 dnspython3 paramiko pysmb pymysql pymssql pyldap`
 
 2. Setup the sqlite databse
 
