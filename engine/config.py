@@ -1,7 +1,7 @@
 # Searvice Check Config
 
 #### Global
-DOMAIN = 'WARPED'
+DOMAIN = 'TEAM'
 
 ### HTTP
 HTTP_PAGES = [
@@ -15,7 +15,7 @@ HTTPS_PAGES = [
 
 ### DNS
 DNS_QUERIES = [
-    { 'type':'A', 'query':'ns.google.com', 'expected':'216.239.32.10' },
+    { 'type':'A', 'query':'team.local', 'expected':'216.239.32.10' },
 ]
 
 ### FTP
@@ -25,7 +25,7 @@ FTP_FILES = [
 
 ### SMB
 SMB_FILES = [
-    { 'sharename':'ftp', 'path':'/testfile.txt', 'checksum':'e05fcb614ab36fdee72ee1f2754ed85e2bd0e8d0' },
+    { 'sharename':'ftproot', 'path':'/index.html', 'checksum':'83e503650ffd301b55538ea896afbcedea0c79c2' },
 ]
 
 ### MSSQL
@@ -60,11 +60,16 @@ TEAMS = [
             { 'name':'pop', 'ip':'172.16.66.152', 'port':110 },
             { 'name':'smtp', 'ip':'172.16.66.152', 'port':25 },
             { 'name':'ldap', 'ip':'172.16.66.134', 'port':389 },
+            { 'name':'ftp', 'ip':'172.16.66.152', 'port':21 },
+            { 'name':'mssql', 'ip':'172.16.66.152', 'port':3308 },
+            { 'name':'mysql', 'ip':'172.16.66.152', 'port':3308 },
+            { 'name':'https', 'ip':'172.16.66.152', 'port':443 },
+            { 'name':'smb', 'ip':'172.16.66.134', 'port':445 },
         ], 
         'credentials': [
-            { 'username':'joe', 'password':'test', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp'] },
+            { 'username':'joe', 'password':'toor', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp', 'ftp', 'mssql', 'mysql', 'https'] },
             { 'username':'nic', 'password':'toor', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp'] },
-            { 'username':'Administrator', 'password':'P@ssword1', 'services':['ldap'] },
+            { 'username':'Administrator', 'password':'P@ssword1', 'services':['ldap', 'smb'] },
         ]
     },
     { 'name': 'Team 2', 

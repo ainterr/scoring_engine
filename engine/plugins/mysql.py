@@ -1,6 +1,13 @@
 from .. import config
+
+import logging
+logger=logging.getLogger(__name__)
+
 import pymysql, random
 
+ERROR_STRINGS = {
+    'NotSupportedError': 'Operation Not Supported: %s',
+}
 def run(options):
     ip = options['ip']
     port = options['port']
@@ -8,13 +15,25 @@ def run(options):
     password = options['password']
 
     test = random.choice(config.MYSQL_QUERIES)
+    expected = test['response']
 
-    conn = pymysql.connect(host=ip, port=port, user=username, password=password, database=test['db'])
-    cursor = conn.cursor()
-    cursor.execute(test['query'])
+    try:
+        conn = pymysql.connect(host=ip, port=port, user=username, password=password, database=test['db'])
+        cursor = conn.cursor()
+        cursor.execute(test['query'])
+        response = ' '.join([res[0] for res in cursor.fetchall()])
+        conn.close()
+    except pymysql.Error as e:
+        name = e.__class__.__name__
+        if name in ERROR_STRINGS:
+            error_string = ERROR_STRINGS[name]
+            logger.debug(error_string % e)
+        else:
+            logger.debug('%s: %s' % (name, e))
+        return False
 
-    response = ' '.join([res[0] for res in cursor.fetchall()])
-    conn.close()
-    if response == test['response']:
+    if response == expected:
         return True
-    return False
+    else:
+        logger.debug('Check failed: output: %s | expected: %s' % (response, expected))
+        return False
