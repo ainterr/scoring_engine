@@ -12,7 +12,7 @@ use in our practice sessions.
 - django-bootstrap3
 - dnspython3
 - paramiko
-- pysmb
+- pysmb 1.1.16
 - pymysql
 - pymssql
 - pyldap
@@ -28,7 +28,7 @@ use in our practice sessions.
 
 `apt-get install freetds-dev libsasl2-dev libldap2-dev python-dev libssl-dev libffi-dev`
 
-`pip3 install django django-bootstrap3 dnspython3 paramiko pysmb pymysql pymssql pyldap`
+`pip3 install django django-bootstrap3 dnspython3 paramiko pysmb==1.1.16 pymysql pymssql pyldap`
 
 2. Setup the sqlite databse
 
