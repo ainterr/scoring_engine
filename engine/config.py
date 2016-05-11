@@ -64,7 +64,7 @@ TEAMS = [
             { 'name':'mssql', 'ip':'172.16.66.152', 'port':3308 },
             { 'name':'mysql', 'ip':'172.16.66.152', 'port':3308 },
             { 'name':'https', 'ip':'172.16.66.152', 'port':443 },
-            { 'name':'smb', 'ip':'172.16.66.134', 'port':445 },
+            { 'name':'smb', 'ip':'172.16.66.134', 'port':139 },
         ], 
         'credentials': [
             { 'username':'joe', 'password':'toor', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp', 'ftp', 'mssql', 'mysql', 'https'] },

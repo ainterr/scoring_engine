@@ -2,15 +2,15 @@ from .. import config
 
 import logging
 logger=logging.getLogger(__name__)
-
-from smb.SMBConnection import SMBConnection
-import smb, random, hashlib, tempfile
 from smb.base import *
 from smb.smb_structs import *
+
+from nmb.NetBIOS import NetBIOS
+from smb.SMBConnection import SMBConnection
+import smb, random, hashlib, tempfile
 import socket
 
 ERROR_STRINGS = {
-    'SMBTimeout': 'Timeout',
     'NotReadyError': 'Authentication failed: %s %s',
     'NotConnectedError': 'Server Disconnected: %s',
 }
@@ -25,7 +25,11 @@ def run(options):
     expected = test['checksum']
 
     try:
-        conn = SMBConnection(username, password, '', 'AD', config.DOMAIN)
+        n = NetBIOS()
+        hostname = n.queryIPForName(ip)[0]
+        n.close()
+
+        conn = SMBConnection(username, password, '', hostname, config.DOMAIN)
         conn.connect(ip, port)
         t = tempfile.TemporaryFile()
         conn.retrieveFile(test['sharename'], test['path'], t)
