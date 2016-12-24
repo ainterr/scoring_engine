@@ -16,9 +16,13 @@ class UserForm(forms.ModelForm):
         models.User.objects.create_user(
             username=self.cleaned_data['username'], 
             password=self.cleaned_data['password'],
-            team=self.cleaned_data['team']
+            team=self.cleaned_data['team']  # This must be set in the view
         )
+
+    def setTeam(self, team):
+        self.is_valid()
+        self.cleaned_data['team'] = team
 
     class Meta: 
         model = models.User
-        fields = ['username', 'password', 'team']
+        fields = ['username', 'password']

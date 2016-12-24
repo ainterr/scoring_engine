@@ -109,6 +109,7 @@ def team_detail(request, pk):
         else:
             if request.POST['type'] == 'user':
                 form = forms.UserForm(request.POST)
+                form.setTeam(models.Team.objects.get(id=pk))
             if request.POST['type'] == 'service':
                 form = forms.ModelFormFactory(models.Service)(request.POST)
             if request.POST['type'] == 'credential':
@@ -127,7 +128,6 @@ def team_detail(request, pk):
 
     context['team'] = team
     context['users'] = team.users.all()
-    print(context['users'].count())
     context['user_form'] = forms.UserForm
     context['services'] = models.Service.objects.all()
     context['service_form'] = forms.ModelFormFactory(models.Service)
