@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load bootstrap3 %}
+{% load ip_calc %}
 
 {% block teams %}active{% endblock %}
 
@@ -53,6 +54,7 @@
 <thead>
 <tr>
 <th>ID</th>
+<th>Name</th>
 <th>IP</th>
 <th>Port</th>
 <th></th>
@@ -63,27 +65,10 @@
 <tr>
 <td>{{ s.pk }}</td>
 <td>{{ s.name }}</td>
+<td>{{ s|ip:team }}</td>
 <td>{{ s.port }}</td>
-<td>
-<form method="post" action="{% url 'team_detail' team.pk %}">
-{% csrf_token %}
-<input type='hidden' name='type' value='service' />
-<input type='hidden' name='delete' value='true' />
-<input type='hidden' name='id' value='{{ s.pk }}' />
-<button class="btn btn-danger pull-right">
-<span class="glyphicon glyphicon-trash"></span>
-</button>
-</form>
-</td>
 </tr>
 {% endfor %}
-<tr>
-<td colspan="4">
-<button class="btn btn-success" data-toggle="modal" data-target="#serviceModal">
-<span class="glyphicon glyphicon-plus"></span>
-</button>
-</td>
-</tr>
 </tbody>
 </table>
 
@@ -144,29 +129,8 @@
 {% bootstrap_form user_form %}
 </div>
 <div class="modal-footer">
+<input type='hidden' name='team' value={{team}}/>
 <input type='hidden' name='type' value='user' />
-<input type="submit" class="btn btn-success" />
-</form>
-<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-</div>
-</div>
-</div>
-</div>
-
-<div class="modal fade" id="serviceModal" tabindex="-1" role="dialog" aria-labelledby="serviceModalLabel">
-<div class="modal-dialog" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-<h4 class="modal-title" id="serviceModalLabel">New Service</h4>
-</div>
-<div class="modal-body">
-<form method="post" action="{% url 'team_detail' team.pk %}">
-{% csrf_token %}
-{% bootstrap_form service_form %}
-</div>
-<div class="modal-footer">
-<input type='hidden' name='type' value='service' />
 <input type="submit" class="btn btn-success" />
 </form>
 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

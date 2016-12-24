@@ -127,10 +127,35 @@ def team_detail(request, pk):
 
     context['team'] = team
     context['users'] = team.users.all()
+    print(context['users'].count())
     context['user_form'] = forms.UserForm
-    context['services'] = team.services.all()
+    context['services'] = models.Service.objects.all()
     context['service_form'] = forms.ModelFormFactory(models.Service)
     context['credentials'] = team.credentials.all()
     context['credential_form'] = forms.ModelFormFactory(models.Credential)
 
     return render(request, 'team_detail.html', context)
+
+@login_required
+@user_passes_test(is_admin, login_url='index', redirect_field_name=None)
+def services(request):
+    context = {}
+
+    if request.method == 'POST':
+        if 'delete' in request.POST:
+            if request.POST['type'] == 'service':
+                model = models.Service.objects.get(pk=request.POST['id'])
+
+            model.delete()
+        else:
+            if request.POST['type'] == 'service':
+                form = forms.ModelFormFactory(models.Service)(request.POST)
+            if form.is_valid():
+                form.save()
+            else:
+                context['invalid_'+request.POST['type']] = True
+
+    context['services'] = models.Service.objects.all()
+    context['service_form'] = forms.ModelFormFactory(models.Service)
+
+    return render(request, 'services.html', context)

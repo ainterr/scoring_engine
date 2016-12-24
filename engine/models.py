@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
+from ipaddress import ip_network
+
 class Plugin(models.Model):
     name = models.CharField(max_length=20, blank=False)
 
@@ -14,9 +16,10 @@ class Plugin(models.Model):
 
 class Team(models.Model):
     name = models.CharField(max_length=20, blank=False, unique=True)
+    subnet = models.GenericIPAddressField(blank=False, unique=True)
+    netmask = models.GenericIPAddressField(blank=False)
 
     # UserProfile creates a field here called 'users'
-    # Service creates a field here called 'services'
     # Credential creates a field here called 'credentials'
     # Result creates a field here called 'results'
 
@@ -61,21 +64,24 @@ class User(AbstractUser):
 
 class Service(models.Model):
     name = models.CharField(max_length=20, blank=False)
-    ip = models.GenericIPAddressField(blank=False)
+    subnet_host = models.PositiveIntegerField(blank=False)
     port = models.PositiveIntegerField(blank=False)
 
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='services')
     plugin = models.ForeignKey(Plugin, on_delete=models.CASCADE, related_name='services')
 
     # Result creates a field here called 'results'
     # Credential creates a field here called 'credentials'
 
+    def ip(self, subnet, netmask):
+      network = ip_network('{}/{}'.format(subnet, netmask))
+      ip = network.network_address + self.subnet_host
+      return '{}'.format(ip)
+
     def __str__(self):
-        return '{} ip={}, port={}, team={}, plugin={}'.format(
+        return '{} ip={}, port={}, plugin={}'.format(
             self.name, 
-            self.ip, 
+            self.subnet_host, 
             self.port, 
-            self.team.id, 
             self.plugin.id
         )
 

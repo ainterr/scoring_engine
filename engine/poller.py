@@ -29,8 +29,8 @@ def poll():
     for team in models.Team.objects.all():
         logger.debug('Running plugins for Team {}'.format(team.name))
 
-        for service in team.services.all():
-            credential = service.credentials.order_by('?').first()
+        for service in models.Service.objects.all():
+            credential = service.credentials.filter(team=team).order_by('?').first()
 
             if credential is None:
                 logger.warning('No credentials configured for service {}'.format(service.name))
@@ -39,7 +39,7 @@ def poll():
             logger.debug('Polling Service {} with credential {}:{}'.format(service.name, credential.username, credential.password))
 
             options = {}
-            options['ip'] = service.ip
+            options['ip'] = service.ip(team.subnet, team.netmask)
             options['port'] = service.port
             options['username'] = credential.username
             options['password'] = credential.password
