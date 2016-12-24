@@ -6,8 +6,8 @@ from . import models, forms
 
 def get_status(team):
     check_results = []
-    for service in team.services.all():
-        results = service.results
+    for service in models.Service.objects.all():
+        results = service.results.filter(team=team)
 
         if results.count() != 0:
             last_result = results.last()
