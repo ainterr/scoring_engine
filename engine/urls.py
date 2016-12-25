@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^teams/$', views.teams, name='teams'),
     url(r'^teams/([0-9]+)/$', views.team_detail, name='team_detail'),
     url(r'^services/$', views.services, name='services'),
+    url(r'^credentials/$', views.default_creds, name='credentials'),
 ]

@@ -88,8 +88,9 @@ class Service(models.Model):
 class Credential(models.Model):
     username = models.CharField(max_length=20, blank=False)
     password = models.CharField(max_length=40, blank=False)
+    default = models.BooleanField(default=True)
 
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='credentials')
+    team = models.ForeignKey(Team, null=True, on_delete=models.CASCADE, related_name='credentials')
 
     services = models.ManyToManyField(Service, related_name='credentials')
 

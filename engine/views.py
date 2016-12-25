@@ -159,3 +159,34 @@ def services(request):
     context['service_form'] = forms.ModelFormFactory(models.Service)
 
     return render(request, 'services.html', context)
+
+@login_required
+@user_passes_test(is_admin, login_url='index', redirect_field_name=None)
+def default_creds(request):
+    context = {}
+
+    if request.method == 'POST':
+        if 'delete' in request.POST:
+            cred = models.Credential.objects.get(pk=request.POST['id'])
+            for c in models.Credential.objects.filter(default=True, username=cred.username, password=cred.password):
+              c.delete()
+        else:
+            form = forms.ModelFormFactory(models.Credential, ['default', 'team'])(request.POST)
+            if form.is_valid():
+                cred = form.save(commit=False)
+                cred.default = True
+                for team in models.Team.objects.all():
+                    cred.pk = None
+                    cred.team = team
+                    cred.save()
+                cred.pk = None
+                cred.team = None
+                cred.save()
+            else:
+                context['invalid_'+request.POST['type']] = True
+
+    context['credentials'] = models.Credential.objects.filter(team=None)
+    context['credential_form'] = forms.ModelFormFactory(models.Credential)
+    context['services'] = models.Service.objects.all()
+
+    return render(request, 'credentials.html', context)

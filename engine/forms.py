@@ -1,13 +1,14 @@
 from django import forms
 from . import models
 
-def ModelFormFactory(model_class):
+def ModelFormFactory(model_class, ex=[]):
     class Form(forms.ModelForm):
         class Meta: 
             model = model_class
-            fields = '__all__'
+            exclude = ex
 
     return Form
+
 
 class UserForm(forms.ModelForm):
     password = forms.CharField(label='Password', widget=forms.PasswordInput())

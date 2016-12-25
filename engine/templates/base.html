@@ -32,10 +32,9 @@
 {% if user.is_superuser %}
 <li class="{% block teams %}{% endblock %}"><a href="{% url 'teams' %}">Teams</a></li>
 <li class="{% block services %}{% endblock %}"><a href="{% url 'services' %}">Services</a></li>
+<li class="{% block credentials %}{% endblock %}"><a href="{% url 'credentials' %}">Default Credentials</a></li>
 {% else %}
 <li class="{% block status %}{% endblock %}"><a href="{% url 'status' %}">Status</a></li>
-{# TODO #}
-<li class="{% block credentials %}{% endblock %}"><a href="{% url 'index' %}">Credentials</a></li>
 {% endif %}
 {% endif %}
 
