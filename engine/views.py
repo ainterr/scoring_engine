@@ -4,6 +4,23 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from . import models, forms
 
+def simple_add(post_req, context):
+    model_type = post_req['type']
+    
+    if model_type == 'team':
+        model = models.Team
+    if model_type == 'service':
+        model = models.Service
+    if model_type == 'credential':
+        model = models.Credential
+
+    form = forms.ModelFormFactory(model)(post_req)
+
+    if form.is_valid():
+        form.save()
+    else:
+        context['invalid_'+request.POST['type']] = True
+
 def delete(post_req):
     model_type = post_req['type']
     pk = post_req['id']
@@ -86,16 +103,11 @@ def status(request):
 def teams(request):
     context = {}
 
-    if request.method == 'POST':
-        if 'delete' in request.POST:
-            if request.POST['type'] == 'team':
-              delete(request.POST)
-        else:
-            form = forms.ModelFormFactory(models.Team)(request.POST)
-            if form.is_valid():
-                form.save()
+    if request.method == 'POST' and request.POST['type'] == 'team':
+            if 'delete' in request.POST:
+                delete(request.POST)
             else:
-                context['invalid'] = True
+                simple_add(request.POST, context)
 
     context['results'] = models.Team.objects.all()
     context['form'] = forms.ModelFormFactory(models.Team)
@@ -107,28 +119,24 @@ def teams(request):
 def team_detail(request, pk):
     context = {}
 
-    if request.method == 'POST':
-        if 'delete' in request.POST and \
-          request.POST['type'] in ['user', 'credential']:
+    if request.method == 'POST' and \
+       request.POST['type'] in ['user', 'credential']:
+        if 'delete' in request.POST:
             delete(request.POST)
         elif 'reset' in request.POST:
             model = models.User.objects.get(pk=request.POST['id'])
             model.set_password(request.POST['password'])
             model.save()
         else:
-            if request.POST['type'] == 'user':
+            if request.POST['type'] == 'user': # Special case for user forms
                 form = forms.UserForm(request.POST)
                 form.setTeam(models.Team.objects.get(id=pk))
-            if request.POST['type'] == 'service':
-                form = forms.ModelFormFactory(models.Service)(request.POST)
-            if request.POST['type'] == 'credential':
-                form = forms.ModelFormFactory(models.Credential)(request.POST)
-
-            if form.is_valid():
-                form.save()
+                if form.is_valid():
+                    form.save()
+                else:
+                    context['invalid_'+request.POST['type']] = True
             else:
-                context['invalid_'+request.POST['type']] = True
-
+              simple_add(request.POST, context)
 
     try:
         team = models.Team.objects.get(pk=pk)
@@ -150,17 +158,11 @@ def team_detail(request, pk):
 def services(request):
     context = {}
 
-    if request.method == 'POST':
+    if request.method == 'POST' and request.POST['type'] == 'service':
         if 'delete' in request.POST:
-            if request.POST['type'] == 'service':
-              delete(request.POST)
+            delete(request.POST)
         else:
-            if request.POST['type'] == 'service':
-                form = forms.ModelFormFactory(models.Service)(request.POST)
-            if form.is_valid():
-                form.save()
-            else:
-                context['invalid_'+request.POST['type']] = True
+            simple_add(request.POST, context)
 
     context['services'] = models.Service.objects.all()
     context['service_form'] = forms.ModelFormFactory(models.Service)
@@ -179,7 +181,8 @@ def default_creds(request):
               default=True, username=cred.username, password=cred.password):
                 c.delete()
         else:
-            form = forms.ModelFormFactory(models.Credential, ['default', 'team'])(request.POST)
+            form = forms.ModelFormFactory(models.Credential,
+                     ['default', 'team'])(request.POST)
             if form.is_valid():
                 cred = form.save(commit=False)
                 cred.default = True
