@@ -10,3 +10,7 @@
 .table .clickable-row {
     cursor: pointer;
 }
+
+.btn-pad {
+  margin:0px 5px 0px 5px;
+}
