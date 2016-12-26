@@ -32,6 +32,7 @@ Invalid Team
 <form method="post" action="{% url 'teams' %}">
 {% csrf_token %}
 <input type='hidden' name='delete' value='true' />
+<input type='hidden' name='type' value='team' />
 <input type='hidden' name='id' value='{{ r.pk }}' />
 <button class="btn btn-danger pull-right">
 <span class="glyphicon glyphicon-trash"></span>

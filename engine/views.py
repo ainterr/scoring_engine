@@ -4,6 +4,21 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from . import models, forms
 
+def delete(post_req):
+    model_type = post_req['type']
+    pk = post_req['id']
+    if model_type == 'user':
+        model = models.User
+    if model_type == 'service':
+        model = models.Service
+    if model_type == 'credential':
+        model = models.Credential
+    if model_type == 'team':
+        model = models.Team
+
+    model.objects.get(pk=pk).delete()
+
+
 def get_status(team):
     check_results = []
     for service in models.Service.objects.all():
@@ -73,8 +88,8 @@ def teams(request):
 
     if request.method == 'POST':
         if 'delete' in request.POST:
-            team = models.Team.objects.get(pk=request.POST['id'])
-            team.delete()
+            if request.POST['type'] == 'team':
+              delete(request.POST)
         else:
             form = forms.ModelFormFactory(models.Team)(request.POST)
             if form.is_valid():
@@ -93,15 +108,9 @@ def team_detail(request, pk):
     context = {}
 
     if request.method == 'POST':
-        if 'delete' in request.POST:
-            if request.POST['type'] == 'user':
-                model = models.User.objects.get(pk=request.POST['id'])
-            if request.POST['type'] == 'service':
-                model = models.Service.objects.get(pk=request.POST['id'])
-            if request.POST['type'] == 'credential':
-                model = models.Credential.objects.get(pk=request.POST['id'])
-
-            model.delete()
+        if 'delete' in request.POST and \
+          request.POST['type'] in ['user', 'credential']:
+            delete(request.POST)
         elif 'reset' in request.POST:
             model = models.User.objects.get(pk=request.POST['id'])
             model.set_password(request.POST['password'])
@@ -144,9 +153,7 @@ def services(request):
     if request.method == 'POST':
         if 'delete' in request.POST:
             if request.POST['type'] == 'service':
-                model = models.Service.objects.get(pk=request.POST['id'])
-
-            model.delete()
+              delete(request.POST)
         else:
             if request.POST['type'] == 'service':
                 form = forms.ModelFormFactory(models.Service)(request.POST)
@@ -166,10 +173,11 @@ def default_creds(request):
     context = {}
 
     if request.method == 'POST':
-        if 'delete' in request.POST:
+        if 'delete' in request.POST and request.POST['type'] == 'credential':
             cred = models.Credential.objects.get(pk=request.POST['id'])
-            for c in models.Credential.objects.filter(default=True, username=cred.username, password=cred.password):
-              c.delete()
+            for c in models.Credential.objects.filter(
+              default=True, username=cred.username, password=cred.password):
+                c.delete()
         else:
             form = forms.ModelFormFactory(models.Credential, ['default', 'team'])(request.POST)
             if form.is_valid():
