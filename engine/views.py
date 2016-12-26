@@ -130,8 +130,8 @@ def team_detail(request, pk):
         else:
             if request.POST['type'] == 'user': # Special case for user forms
                 form = forms.UserForm(request.POST)
-                form.setTeam(models.Team.objects.get(id=pk))
                 if form.is_valid():
+                    form.cleaned_data['team'] = models.Team.objects.get(id=pk)
                     form.save()
                 else:
                     context['invalid_'+request.POST['type']] = True

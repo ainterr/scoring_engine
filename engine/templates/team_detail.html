@@ -126,7 +126,7 @@
 <div class="modal-body">
 <form method="post" action="{% url 'team_detail' team.pk %}">
 {% csrf_token %}
-{% bootstrap_form user_form %}
+{% bootstrap_form user_form exclude='team' %}
 </div>
 <div class="modal-footer">
 <input type='hidden' name='type' value='user' />
