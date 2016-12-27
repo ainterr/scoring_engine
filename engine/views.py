@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
 
 from . import models, forms
 
@@ -14,7 +15,12 @@ def simple_add(post_req, context):
     if model_type == 'credential':
         model = models.Credential
 
-    form = forms.ModelFormFactory(model)(post_req)
+    if 'id' in post_req:
+        inst = model.objects.get(id=post_req['id'])
+    else:
+        inst = None
+
+    form = forms.ModelFormFactory(model)(post_req, instance=inst)
 
     if form.is_valid():
         form.save()
@@ -163,10 +169,11 @@ def services(request):
             delete(request.POST)
         else:
             simple_add(request.POST, context)
+    else:
+        form = forms.ModelFormFactory(models.Service)()
 
     context['services'] = models.Service.objects.all()
-    context['service_form'] = forms.ModelFormFactory(models.Service)
-
+    context['service_form'] = form
     return render(request, 'services.html', context)
 
 @login_required
@@ -190,9 +197,11 @@ def default_creds(request):
                     cred.pk = None
                     cred.team = team
                     cred.save()
+                    form.save_m2m()
                 cred.pk = None
                 cred.team = None
                 cred.save()
+                form.save_m2m()
             else:
                 context['invalid_'+request.POST['type']] = True
 
@@ -201,3 +210,21 @@ def default_creds(request):
     context['services'] = models.Service.objects.all()
 
     return render(request, 'credentials.html', context)
+
+@login_required
+@user_passes_test(is_admin, login_url='index', redirect_field_name=None)
+def bulk_password(request):
+    context = {}
+    if request.method == 'POST':
+        form = forms.BulkPasswordForm(request.POST)
+        if form.is_valid():
+            form.save()
+        else:
+            messages.error(request, 'Bad form input')
+    else:
+        form = forms.BulkPasswordForm()
+        
+    context['teams'] = models.Team.objects.all()
+    context['services'] = models.Service.objects.all()
+    context['password_form'] = form
+    return render(request, 'bulk_password.html', context)

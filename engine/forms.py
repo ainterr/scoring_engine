@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import RegexValidator
 from . import models
 
 def ModelFormFactory(model_class, ex=[]):
@@ -23,3 +24,45 @@ class UserForm(forms.ModelForm):
     class Meta: 
         model = models.User
         fields = ['username', 'password', 'team']
+
+class BulkPasswordForm(forms.ModelForm):
+    changeList = forms.CharField(
+        label='Password Changes',
+        help_text='Enter password changes in format \'user:password\' (no quotes), one per line',
+        widget=forms.Textarea(),
+        validators=[RegexValidator('^([!-~]+:[!-~]+\s*\n?)+$')])
+    service = forms.ModelChoiceField(models.Service.objects.all())
+    
+    def save(self):
+        team = self.cleaned_data['team']
+        service = self.cleaned_data['service']
+        for line in self.cleaned_data['changeList'].split('\n'):
+            user,passwd = line.strip().split(':')
+            try:
+                cred = models.Credential.objects.get(team=team, username=user, services=service)
+                if cred.services.count() > 1:
+                    # Create new object, remove service from cred.services
+                    cred.services.remove(service)
+                    cred.default = False
+                    cred.save()
+    
+                    new_cred = models.Credential.objects.create(
+                        team=team,
+                        username=user,
+                        password=passwd,
+                        default=False
+                    )
+                    new_cred.services.add(service)
+                    new_cred.save()
+                    
+                else:
+                    cred.password = passwd
+                    cred.default=False
+                    cred.save()
+            except models.Credential.DoesNotExist:
+                pass # User entered a credential which doesn't exist. Ignore it
+
+
+    class Meta:
+        model = models.Credential
+        fields = ['team', 'service', 'changeList']
