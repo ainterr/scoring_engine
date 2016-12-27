@@ -89,7 +89,11 @@
 <td>{{ c.pk }}</td>
 <td>{{ c.username }}</td>
 <td>{{ c.password }}</td>
-<td>{{ c.services }}</td>
+<td>
+{% for s in c.services.all %}
+{{ s.name }}, 
+{% endfor %}
+</td>
 <td>
 <form method="post" action="{% url 'team_detail' team.pk %}">
 {% csrf_token %}
