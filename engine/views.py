@@ -41,6 +41,13 @@ def delete(post_req):
 
     model.objects.get(pk=pk).delete()
 
+def gen_model_forms(model_type):
+    form_class = forms.ModelFormFactory(model_type)
+    model_forms = {0: form_class()}
+    for m in model_type.objects.all():
+        model_forms[m.pk] = form_class(instance=m)
+    return model_forms
+
 
 def get_status(team):
     check_results = []
@@ -109,14 +116,14 @@ def status(request):
 def teams(request):
     context = {}
 
-    if request.method == 'POST' and request.POST['type'] == 'team':
+    if request.method == 'POST':
             if 'delete' in request.POST:
                 delete(request.POST)
             else:
                 simple_add(request.POST, context)
 
-    context['results'] = models.Team.objects.all()
-    context['form'] = forms.ModelFormFactory(models.Team)
+    context['teams'] = models.Team.objects.all()
+    context['team_forms'] = gen_model_forms(models.Team)
     
     return render(request, 'teams.html', context)
 
@@ -173,7 +180,7 @@ def services(request):
         form = forms.ModelFormFactory(models.Service)()
 
     context['services'] = models.Service.objects.all()
-    context['service_form'] = form
+    context['service_forms'] = gen_model_forms(models.Service)
     return render(request, 'services.html', context)
 
 @login_required
@@ -206,7 +213,7 @@ def default_creds(request):
                 context['invalid_'+request.POST['type']] = True
 
     context['credentials'] = models.Credential.objects.filter(team=None)
-    context['credential_form'] = forms.ModelFormFactory(models.Credential)
+    context['credential_forms'] = gen_model_forms(models.Credential)
     context['services'] = models.Service.objects.all()
 
     return render(request, 'credentials.html', context)

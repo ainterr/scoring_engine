@@ -3,6 +3,6 @@ from .. import models
 
 register = template.Library()
 
-@register.filter(name='ip')
+@register.filter
 def ip(service, team):
   return service.ip(team.subnet, team.netmask)

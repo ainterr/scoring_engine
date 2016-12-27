@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load bootstrap3 %}
+{% load dyn_form %}
 
 {% block teams %}active{% endblock %}
 
@@ -19,25 +20,57 @@ Invalid Team
 <tr>
 <th>ID</th>
 <th>Name</th>
+<th>Subnet</th>
+<th>Netmask</th>
 <th></th>
 </tr>
 </thead>
 
 <tbody>
-{% for r in results %}
-<tr class='clickable-row' data-href='{{ r.pk }}/'>
-<td>{{ r.pk }}</td>
-<td>{{ r.name }}</td>
-<td>
+{% for t in teams %}
+<tr class='clickable-row' data-href='{{ t.pk }}/'>
+<td>{{ t.pk }}</td>
+<td>{{ t.name }}</td>
+<td>{{ t.subnet }}</td>
+<td>{{ t.netmask }}</td>
+<td class='no-clickable'>
 <form method="post" action="{% url 'teams' %}">
 {% csrf_token %}
 <input type='hidden' name='delete' value='true' />
 <input type='hidden' name='type' value='team' />
-<input type='hidden' name='id' value='{{ r.pk }}' />
+<input type='hidden' name='id' value='{{ t.pk }}' />
 <button class="btn btn-danger pull-right">
 <span class="glyphicon glyphicon-trash"></span>
 </button>
 </form>
+
+<button class="btn btn-primary btn-pad pull-right" data-toggle="modal" data-target="#editTeamModal-{{ t.pk }}">
+<span class="glyphicon glyphicon-pencil"></span>
+</button>
+
+<div class="modal fade" id="editTeamModal-{{ t.pk }}" tabindex="-1" role="dialog" aria-labelledby="editTeamModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="editTeamModalLabel">Edit Team</h4>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{% url 'teams' %}">
+          {% csrf_token %}
+          {% bootstrap_form team_forms|dyn_form:t.pk %}
+          <input type='hidden' name='type' value='credential' />
+          <input type='hidden' name='edit' value='true' />
+      </div>
+      <div class="modal-footer">
+          <input type="submit" class="btn btn-success" value="Submit"/>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 </td>
 </tr>
 {% endfor %}
@@ -64,10 +97,10 @@ Invalid Team
 <div class="modal-body">
 <form method="post" action="{% url 'teams' %}">
 {% csrf_token %}
-{% bootstrap_form form %}
+{% bootstrap_form team_forms|dyn_form:0 %}
 </div>
 <div class="modal-footer">
-<input type="submit" class="btn btn-success" />
+<input type="submit" class="btn btn-success" value="Submit" />
 <input type="hidden" name="type" value="team" />
 </form>
 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -75,4 +108,5 @@ Invalid Team
 </div>
 </div>
 </div>
+
 {% endblock %}
