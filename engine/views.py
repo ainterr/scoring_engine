@@ -5,14 +5,14 @@ from django.contrib import messages
 
 from . import models, forms
 
-def simple_add(post_req, context):
-    model_type = post_req['type']
+def simple_add_modify(post_req, context):
+    model_str = post_req['type']
     
-    if model_type == 'team':
+    if model_str == 'team':
         model = models.Team
-    if model_type == 'service':
+    if model_str == 'service':
         model = models.Service
-    if model_type == 'credential':
+    if model_str == 'credential':
         model = models.Credential
 
     if 'id' in post_req:
@@ -25,7 +25,7 @@ def simple_add(post_req, context):
     if form.is_valid():
         form.save()
     else:
-        context['invalid_'+request.POST['type']] = True
+        context['invalid_' + model_str] = True
 
 def delete(post_req):
     model_type = post_req['type']
@@ -120,7 +120,7 @@ def teams(request):
             if 'delete' in request.POST:
                 delete(request.POST)
             else:
-                simple_add(request.POST, context)
+                simple_add_modify(request.POST, context)
 
     context['teams'] = models.Team.objects.all()
     context['team_forms'] = gen_model_forms(models.Team)
@@ -149,7 +149,7 @@ def team_detail(request, pk):
                 else:
                     context['invalid_'+request.POST['type']] = True
             else:
-              simple_add(request.POST, context)
+              simple_add_modify(request.POST, context)
 
     try:
         team = models.Team.objects.get(pk=pk)
@@ -175,7 +175,7 @@ def services(request):
         if 'delete' in request.POST:
             delete(request.POST)
         else:
-            simple_add(request.POST, context)
+            simple_add_modify(request.POST, context)
     else:
         form = forms.ModelFormFactory(models.Service)()
 
