@@ -132,8 +132,7 @@ def teams(request):
 def team_detail(request, pk):
     context = {}
 
-    if request.method == 'POST' and \
-       request.POST['type'] in ['user', 'credential']:
+    if request.method == 'POST':
         if 'delete' in request.POST:
             delete(request.POST)
         elif 'reset' in request.POST:
@@ -149,7 +148,7 @@ def team_detail(request, pk):
                 else:
                     context['invalid_'+request.POST['type']] = True
             else:
-              simple_add_modify(request.POST, context)
+                simple_add_modify(request.POST, context)
 
     try:
         team = models.Team.objects.get(pk=pk)
@@ -189,7 +188,7 @@ def default_creds(request):
     context = {}
 
     if request.method == 'POST':
-        if 'delete' in request.POST and request.POST['type'] == 'credential':
+        if 'delete' in request.POST:
             cred = models.Credential.objects.get(pk=request.POST['id'])
             for c in models.Credential.objects.filter(
               default=True, username=cred.username, password=cred.password):

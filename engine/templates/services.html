@@ -53,7 +53,8 @@
         <form method="post" action="{% url 'services' %}">
           {% csrf_token %}
           {% bootstrap_form service_forms|dyn_form:s.pk %}
-          <input type='hidden' name='type' value='credential' />
+          <input type='hidden' name='type' value='service' />
+          <input type='hidden' name='id' value={{ s.pk }} />
           <input type='hidden' name='edit' value='true' />
       </div>
       <div class="modal-footer">
