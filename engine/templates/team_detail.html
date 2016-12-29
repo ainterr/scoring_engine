@@ -26,7 +26,7 @@
 <td>
 <button class="btn btn-default btn-reset" data-toggle="modal" data-target="#resetModal" transfer="{{ u.pk }}">Reset</button>
 </td>
-<td>
+<td class='button-td'>
 <form method="post" action="{% url 'team_detail' team.pk %}">
 {% csrf_token %}
 <input type='hidden' name='type' value='user' />
@@ -94,26 +94,8 @@
 {{ s.name }}, 
 {% endfor %}
 </td>
-<td>
-<form method="post" action="{% url 'team_detail' team.pk %}">
-{% csrf_token %}
-<input type='hidden' name='type' value='credential' />
-<input type='hidden' name='delete' value='true' />
-<input type='hidden' name='id' value='{{ c.pk }}' />
-<button class="btn btn-danger pull-right">
-<span class="glyphicon glyphicon-trash"></span>
-</button>
-</form>
-</td>
 </tr>
 {% endfor %}
-<tr>
-<td colspan="5">
-<button class="btn btn-success" data-toggle="modal" data-target="#credentialModal">
-<span class="glyphicon glyphicon-plus"></span>
-</button>
-</td>
-</tr>
 </tbody>
 </table>
 
@@ -134,28 +116,6 @@
 </div>
 <div class="modal-footer">
 <input type='hidden' name='type' value='user' />
-<input type="submit" class="btn btn-success" />
-</form>
-<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-</div>
-</div>
-</div>
-</div>
-
-<div class="modal fade" id="credentialModal" tabindex="-1" role="dialog" aria-labelledby="credentialModalLabel">
-<div class="modal-dialog" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-<h4 class="modal-title" id="credentialModalLabel">New Credential</h4>
-</div>
-<div class="modal-body">
-<form method="post" action="{% url 'team_detail' team.pk %}">
-{% csrf_token %}
-{% bootstrap_form credential_form %}
-</div>
-<div class="modal-footer">
-<input type='hidden' name='type' value='credential' />
 <input type="submit" class="btn btn-success" />
 </form>
 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

@@ -33,7 +33,7 @@ Invalid Team
 <td>{{ t.name }}</td>
 <td>{{ t.subnet }}</td>
 <td>{{ t.netmask }}</td>
-<td class='no-clickable'>
+<td class='no-clickable button-td'>
 <form method="post" action="{% url 'teams' %}">
 {% csrf_token %}
 <input type='hidden' name='delete' value='true' />

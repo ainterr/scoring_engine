@@ -27,7 +27,7 @@
 <td>{{ s.plugin }}</td>
 <td>{Team Subnet} + {{ s.subnet_host }}</td>
 <td>{{ s.port }}</td>
-<td>
+<td class='button-td'>
 <form method="post" action="{% url 'services' %}">
 {% csrf_token %}
 <input type='hidden' name='type' value='service' />
