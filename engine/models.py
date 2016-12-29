@@ -26,6 +26,20 @@ class Team(models.Model):
     def __str__(self):
         return '{}, id={}'.format(self.name, self.id)
 
+    def save(self, *args, **kwargs):
+        new_team = self.pk is None
+        super(Team, self).save(*args, **kwargs)
+        if new_team:
+            for c in Credential.objects.filter(team=None):
+                new_cred = Credential(
+                    team=self,
+                    default=True,
+                    username=c.username,
+                    password=c.password)
+                new_cred.save()
+                new_cred.services.set(c.services.all())        
+ 
+
 class UserManager(BaseUserManager):
     def _create_user(self, username, password, **extra_fields):
         if not username:
