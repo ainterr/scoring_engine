@@ -29,7 +29,7 @@ class Command(BaseCommand):
 
         models.Team.objects.all().delete()
         models.Credential.objects.all().delete()
-        models.UserProfile.objects.all().delete()
+        models.User.objects.all().delete()
         models.Result.objects.all().delete()
         models.Service.objects.all().delete()
         models.Plugin.objects.all().delete()

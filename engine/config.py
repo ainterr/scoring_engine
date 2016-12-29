@@ -49,35 +49,37 @@ LDAP_QUERIES = [
     { 'dn': '%s@team.vnet', 'base': 'cn=users,dc=team,dc=vnet', 'filter':'(&(objectClass=*)(cn=Administrator))', 'attributes':['sAMAccountName'], 'expected':{'sAMAccountName': ['Administrator']} },
 ]
 
+# Services Config
+SERVICES = [
+    { 'name':'http',  'subnet_host':'152', 'port':80,   'plugin':'http' },
+    { 'name':'ssh',   'subnet_host':'152', 'port':22,   'plugin':'ssh' },
+    { 'name':'dns',   'subnet_host':'152', 'port':53,   'plugin':'dns' },
+    { 'name':'imap',  'subnet_host':'152', 'port':143,  'plugin':'imap' },
+    { 'name':'pop',   'subnet_host':'152', 'port':110,  'plugin':'pop' },
+    { 'name':'smtp',  'subnet_host':'152', 'port':25,   'plugin':'smtp' },
+    { 'name':'ldap',  'subnet_host':'134', 'port':389,  'plugin':'ldap' },
+    { 'name':'ftp',   'subnet_host':'152', 'port':21,   'plugin':'ftp' },
+    { 'name':'mssql', 'subnet_host':'152', 'port':3308, 'plugin':'mssql' },
+    { 'name':'mysql', 'subnet_host':'152', 'port':3308, 'plugin':'mysql' },
+    { 'name':'https', 'subnet_host':'152', 'port':443,  'plugin':'https' },
+    { 'name':'smb',   'subnet_host':'134', 'port':139,  'plugin':'smb' },
+] 
+
+# Default Credentials Config
+DEFAULT_CREDS = [
+    { 'username':'joe', 'password':'toor', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp', 'ftp', 'mssql', 'mysql', 'https'] },
+    { 'username':'nic', 'password':'toor', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp'] },
+    { 'username':'Administrator', 'password':'P@ssword1', 'services':['ldap', 'smb'] },
+]
+
 # Team Config
 TEAMS = [
     { 'name': 'Team 1', 
-        'services': [
-            { 'name':'http', 'ip':'172.16.66.152', 'port':80 },
-            { 'name':'ssh', 'ip':'172.16.66.152', 'port':22 },
-            { 'name':'dns', 'ip':'172.16.66.152', 'port':53 },
-            { 'name':'imap', 'ip':'172.16.66.152', 'port':143 },
-            { 'name':'pop', 'ip':'172.16.66.152', 'port':110 },
-            { 'name':'smtp', 'ip':'172.16.66.152', 'port':25 },
-            { 'name':'ldap', 'ip':'172.16.66.134', 'port':389 },
-            { 'name':'ftp', 'ip':'172.16.66.152', 'port':21 },
-            { 'name':'mssql', 'ip':'172.16.66.152', 'port':3308 },
-            { 'name':'mysql', 'ip':'172.16.66.152', 'port':3308 },
-            { 'name':'https', 'ip':'172.16.66.152', 'port':443 },
-            { 'name':'smb', 'ip':'172.16.66.134', 'port':139 },
-        ], 
-        'credentials': [
-            { 'username':'joe', 'password':'toor', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp', 'ftp', 'mssql', 'mysql', 'https'] },
-            { 'username':'nic', 'password':'toor', 'services':['http', 'ssh', 'dns', 'imap', 'pop', 'smtp'] },
-            { 'username':'Administrator', 'password':'P@ssword1', 'services':['ldap', 'smb'] },
-        ]
+      'subnet': '192.168.1.0',
+      'netmask': '255.255.255.0'
     },
     { 'name': 'Team 2', 
-        'services': [
-            { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
-        ], 
-        'credentials': [
-            { 'username':'joe', 'password':'Sup3rSecret!', 'services':['http'] }
-        ]
+      'subnet': '192.168.2.0',
+      'netmask': '255.255.255.0'
     },
 ]

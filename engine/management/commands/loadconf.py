@@ -16,75 +16,85 @@ class Command(BaseCommand):
         pass
 
     @transaction.atomic
-    def handle(self, *args, **options):
-        call_command('registerplugins')
+    def create_services(self):
+        for service in config.SERVICES:
+            try:
+               with transaction.atomic():
+                   try:
+                       plugin=models.Plugin.objects.get(name=service['plugin'])
+                   except models.Plugin.DoesNotExist:
+                       raise IntegrityError('Service {} not created: No Plugin configured to score this service (Did you run registerplugins?)'.format(service['name']))
+
+                   s, c = models.Service.objects.get_or_create(
+                       name=service['name'],
+                       subnet_host=service['subnet_host'],
+                       port=service['port'],
+                       plugin=plugin
+                   )
+                   s.save()
+
+                   logger.info('{} Service "{}"'.format('Created' if c else 'Found', s.name))
+            except IntegrityError as e:
+                logger.warning(e)
+            except KeyError:
+                logger.warning('Service not created: malformed')
+
+
+    @transaction.atomic
+    def create_default_credentials(self):
+        for credential in config.DEFAULT_CREDS:
+            try:
+                with transaction.atomic():
+                    for t in list(models.Team.objects.all())+[None]:
+                        c, s = models.Credential.objects.get_or_create(
+                            username=credential['username'],
+                            password=credential['password'],
+                            team=t,
+                            default=True
+                        )
+                        c.save()
+
+                    if len(credential['services']) == 0:
+                        raise IntegrityError('Credential {}:{} not created: credentials must have at least one service'.format(credential['username'], credential['password']))
+
+                    logger.info('{} Default Credential "{}:{}"'.format('Created' if s else 'Found', c.username, c.password))
+
+                    for service in credential['services']:
+                        try:
+                            service = models.Service.objects.get(name=service)
+                            c.services.add(service)
+                            logger.info('Added Default Credential "{}:{}" to Service "{}"'.format(c.username, c.password, service.name))
+                        except models.Service.DoesNotExist:
+                            logger.warning('Credential {}:{} not applied to service {}: service does not exist'.format(credential['username'], credential['password'], service))
+
+                    c.save()
+            except IntegrityError as e:
+                logger.warning(e)
+            except KeyError:
+                logger.warning('Credential not created: malformed')
+
+
+    @transaction.atomic
+    def create_teams(self):
         for team in config.TEAMS:
             try:
                 with transaction.atomic():
-                    t, c = models.Team.objects.get_or_create(name=team['name'])
+                    t, c = models.Team.objects.get_or_create(
+                        name=team['name'],
+                        subnet=team['subnet'],
+                        netmask=team['netmask'])
                     t.save()
 
-                    if 'services' not in team or len(team['services']) == 0:
-                        raise IntegrityError('Team {} not created: No services configured'.format(team['name']))
-
                     logger.info('{} Team "{}"'.format('Created' if c else 'Found', t.name))
-
-                    for service in team['services']:
-                        try:
-                            with transaction.atomic():
-                                try:
-                                    plugin=models.Plugin.objects.get(name=service['name'])
-                                except models.Plugin.DoesNotExist:
-                                    raise IntegrityError('Service {} not created: No Plugin configured to score this service (Did you run registerplugins?)'.format(service['name']))
-
-                                s, c = models.Service.objects.get_or_create(
-                                    name=service['name'],
-                                    ip=service['ip'],
-                                    port=service['port'],
-                                    team=t,
-                                    plugin=plugin
-                                )
-                                s.save()
-
-                                logger.info('{} Service "{}" for Team "{}"'.format('Created' if c else 'Found', s.name, t.name))
-                        except IntegrityError as e:
-                            logger.warning(e)
-                        except KeyError:
-                            logger.warning('Service not created: malformed')
-
-                    if 'credentials' not in team or len(team['credentials']) == 0:
-                        raise IntegrityError('Team {} not created: No credentials configured'.format(team['name']))
-                    for credential in team['credentials']:
-                        try:
-                            with transaction.atomic():
-                                c, s = models.Credential.objects.get_or_create(
-                                    username=credential['username'],
-                                    password=credential['password'],
-                                    team=t
-                                )
-                                c.save()
-
-                                if len(credential['services']) == 0:
-                                    raise IntegrityError('Credential {}:{} not created: credentials must have at least one service'.format(credential['username'], credential['password']))
-
-                                logger.info('{} Credential "{}:{}" for Team "{}"'.format('Created' if s else 'Found', c.username, c.password, t.name))
-
-                                for service in credential['services']:
-                                    try:
-                                        services = t.services.filter(name=service)
-                                        for s in services:
-                                            c.services.add(s)
-                                            logger.info('Added Credential "{}:{}" to Team "{}" Service "{}"'.format(c.username, c.password, t.name, s.name))
-                                    except models.Service.DoesNotExist:
-                                        logger.warning('Credential {}:{} not applied to service {}: service does not exist'.format(credential['username'], credential['password'], service))
-
-                                c.save()
-                        except IntegrityError as e:
-                            logger.warning(e)
-                        except KeyError:
-                            logger.warning('Credential not created: malformed')
-                            
             except IntegrityError as e:
                 logger.warning(e)
             except KeyError:
                logger.error('Team not created: malformed')
+
+
+    @transaction.atomic
+    def handle(self, *args, **options):
+        call_command('registerplugins')
+        self.create_services()
+        self.create_default_credentials()
+        self.create_teams()
