@@ -121,7 +121,19 @@ def teams(request):
                 delete(request.POST)
             else:
                 simple_add_modify(request.POST, context)
-
+                # If newly added team, give it default creds
+                last_team = models.Team.objects.latest('pk')
+                if models.Credential.objects.filter(
+                  team=last_team).count() == 0:
+                    for c in models.Credential.objects.filter(team=None):
+                        new_cred = models.Credential(
+                            team=last_team,
+                            default=True,
+                            username=c.username,
+                            password=c.password)
+                        new_cred.save()
+                        new_cred.services.set(c.services.all())
+    
     context['teams'] = models.Team.objects.all()
     context['team_forms'] = gen_model_forms(models.Team)
     
