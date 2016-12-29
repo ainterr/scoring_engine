@@ -5,8 +5,8 @@ from django.contrib import messages
 
 from . import models, forms
 
-def simple_add_modify(post_req, context):
-    model_str = post_req['type']
+def simple_add_modify(request, ex=[]):
+    model_str = request.POST['type']
     
     if model_str == 'team':
         model = models.Team
@@ -15,17 +15,15 @@ def simple_add_modify(post_req, context):
     if model_str == 'credential':
         model = models.Credential
 
-    if 'id' in post_req:
-        inst = model.objects.get(id=post_req['id'])
+    if 'id' in request.POST:
+        inst = model.objects.get(id=request.POST['id'])
     else:
         inst = None
 
-    form = forms.ModelFormFactory(model)(post_req, instance=inst)
+    form = forms.ModelFormFactory(model, ex)(request.POST, instance=inst)
 
     if form.is_valid():
         form.save()
-    else:
-        context['invalid_' + model_str] = True
 
 def delete(post_req):
     model_type = post_req['type']
@@ -120,7 +118,7 @@ def teams(request):
             if 'delete' in request.POST:
                 delete(request.POST)
             else:
-                simple_add_modify(request.POST, context)
+                simple_add_modify(request)
     
     context['teams'] = models.Team.objects.all()
     context['team_forms'] = gen_model_forms(models.Team)
@@ -148,7 +146,7 @@ def team_detail(request, pk):
                 else:
                     context['invalid_'+request.POST['type']] = True
             else:
-                simple_add_modify(request.POST, context)
+                simple_add_modify(request)
 
     try:
         team = models.Team.objects.get(pk=pk)
@@ -174,7 +172,7 @@ def services(request):
         if 'delete' in request.POST:
             delete(request.POST)
         else:
-            simple_add_modify(request.POST, context)
+            simple_add_modify(request)
     else:
         form = forms.ModelFormFactory(models.Service)()
 
@@ -204,8 +202,6 @@ def default_creds(request):
             if form.is_valid():
                 assoc_creds = models.Credential.objects.filter(
                     default=True, username=username, password=password)
-                assoc_creds.update(username=form.cleaned_data['username'],
-                                   password=form.cleaned_data['password'])
                 for c in assoc_creds:
                     c.username=form.cleaned_data['username']
                     c.password=form.cleaned_data['password']
@@ -217,17 +213,11 @@ def default_creds(request):
             if form.is_valid():
                 cred = form.save(commit=False)
                 cred.default = True
-                for team in models.Team.objects.all():
+                for team in list(models.Team.objects.all())+[None]:
                     cred.pk = None
                     cred.team = team
                     cred.save()
                     form.save_m2m()
-                cred.pk = None
-                cred.team = None
-                cred.save()
-                form.save_m2m()
-            else:
-                context['invalid_'+request.POST['type']] = True
 
     context['credentials'] = models.Credential.objects.filter(team=None)
     context['credential_forms'] = gen_model_forms(models.Credential)
