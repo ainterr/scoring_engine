@@ -2,8 +2,9 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.core.exceptions import ValidationError
 
-from ipaddress import ip_network
+from ipaddress import ip_network, ip_address
 
 class Plugin(models.Model):
     name = models.CharField(max_length=20, blank=False)
@@ -23,10 +24,28 @@ class Team(models.Model):
     # Credential creates a field here called 'credentials'
     # Result creates a field here called 'results'
 
+    def clean(self):
+        if not isinstance(self.name, str):
+            raise ValidationError('Team name must be a string')
+        if self.name == '':
+            raise ValidationError('Team should not have a blank name')
+
+        try:
+            net = ip_network('{}/{}'.format(self.subnet, self.netmask),
+                             strict=False)
+        except ValueError:
+            raise ValidationError('Team subnet/netmask should be a valid IP network')
+        for team in Team.objects.all():
+          other_net = ip_network('{}/{}'.format(team.subnet, team.netmask),
+                                 strict=False)
+          if net.overlaps(other_net):
+              raise ValidationError('Team subnets should not overlap')
+
     def __str__(self):
         return '{}, id={}'.format(self.name, self.id)
 
     def save(self, *args, **kwargs):
+        self.full_clean()
         new_team = self.pk is None
         super(Team, self).save(*args, **kwargs)
         if new_team:
@@ -77,7 +96,7 @@ class User(AbstractUser):
         return '{} team={}'.format(self.username, self.team.id)
 
 class Service(models.Model):
-    name = models.CharField(max_length=20, blank=False)
+    name = models.CharField(max_length=20, blank=False, unique=True)
     subnet_host = models.PositiveIntegerField(blank=False)
     port = models.PositiveIntegerField(blank=False)
 
@@ -87,9 +106,28 @@ class Service(models.Model):
     # Credential creates a field here called 'credentials'
 
     def ip(self, subnet, netmask):
-      network = ip_network('{}/{}'.format(subnet, netmask))
+      network = ip_network('{}/{}'.format(subnet, netmask), strict=False)
       ip = network.network_address + self.subnet_host
       return '{}'.format(ip)
+
+    def clean(self):
+        if self.name == '':
+            raise ValidationError('Service should not have blank name')
+
+        if not isinstance(self.subnet_host, int) or self.subnet_host < 0:
+            raise ValidationError('Service subnet host must be positive')
+
+        if self.port not in range(1, 65536):
+            raise ValidationError('Service port not in valid range 1-65535')
+
+        for service in Service.objects.all():
+            if self.subnet_host == service.subnet_host and \
+               self.port == service.port:
+                raise ValidationError('Service already exists on host {} port {}'.format(self.subnet_host, self.port))
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Service, self).save(*args, **kwargs)
 
     def __str__(self):
         return '{} ip={}, port={}, plugin={}'.format(
@@ -102,11 +140,23 @@ class Service(models.Model):
 class Credential(models.Model):
     username = models.CharField(max_length=20, blank=False)
     password = models.CharField(max_length=40, blank=False)
-    default = models.BooleanField(default=True)
+    default = models.BooleanField()
 
     team = models.ForeignKey(Team, null=True, on_delete=models.CASCADE, related_name='credentials')
 
     services = models.ManyToManyField(Service, related_name='credentials')
+
+    def clean(self):
+        if not isinstance(self.default, bool):
+            raise ValidationError('Credential default must be a boolean')
+        if self.username == '':
+            raise ValidationError('Credential should not have blank username')
+        if self.password == '':
+            raise ValidationError('Credential should not have blank password')
+
+    def save(self, *args, **kwargs):
+        self.full_clean(exclude=['team'])
+        super(Credential, self).save(*args, **kwargs)
 
     def __str__(self):
         return '{}:{}'.format(self.username, self.password)
