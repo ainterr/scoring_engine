@@ -43,21 +43,21 @@ class BulkPasswordForm(forms.ModelForm):
                 if cred.services.count() > 1:
                     # Create new object, remove service from cred.services
                     cred.services.remove(service)
-                    cred.default = False
+                    cred.default = None
                     cred.save()
     
                     new_cred = models.Credential.objects.create(
                         team=team,
                         username=user,
                         password=passwd,
-                        default=False
+                        default=None
                     )
                     new_cred.services.add(service)
                     new_cred.save()
                     
                 else:
                     cred.password = passwd
-                    cred.default=False
+                    cred.default=None
                     cred.save()
             except models.Credential.DoesNotExist:
                 pass # User entered a credential which doesn't exist. Ignore it

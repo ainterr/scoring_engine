@@ -50,13 +50,7 @@ class Team(models.Model):
         super(Team, self).save(*args, **kwargs)
         if new_team:
             for c in Credential.objects.filter(team=None):
-                new_cred = Credential(
-                    team=self,
-                    default=True,
-                    username=c.username,
-                    password=c.password)
-                new_cred.save()
-                new_cred.services.set(c.services.all())        
+                c.populate_teams()
  
 
 class UserManager(BaseUserManager):
@@ -140,23 +134,40 @@ class Service(models.Model):
 class Credential(models.Model):
     username = models.CharField(max_length=20, blank=False)
     password = models.CharField(max_length=40, blank=False)
-    default = models.BooleanField()
 
-    team = models.ForeignKey(Team, null=True, on_delete=models.CASCADE, related_name='credentials')
+    team = models.ForeignKey(Team, blank=True, null=True, on_delete=models.CASCADE, related_name='credentials')
+    default = models.ForeignKey('self', blank=True, null=True, on_delete=models.CASCADE, related_name='assoc_creds') # If this is default, points to the default cred
 
     services = models.ManyToManyField(Service, related_name='credentials')
 
     def clean(self):
-        if not isinstance(self.default, bool):
-            raise ValidationError('Credential default must be a boolean')
         if self.username == '':
             raise ValidationError('Credential should not have blank username')
         if self.password == '':
             raise ValidationError('Credential should not have blank password')
 
+    def populate_teams(self):
+        """If this is a default cred, populate all teams with copies of self"""
+        if self.team != None: # This is not a default cred
+            return
+        team_pks = [c.team.pk for c in self.assoc_creds.all()]
+        for t in Team.objects.exclude(pk__in=team_pks):
+            c = Credential.objects.create(team=t, username=self.username,
+                                      password=self.password, default=self)
+            c.services = self.services.all()
+
     def save(self, *args, **kwargs):
-        self.full_clean(exclude=['team'])
+        self.full_clean()
+        new_cred = self.pk is None
         super(Credential, self).save(*args, **kwargs)
+        if new_cred and self.team is None: # New default cred
+            self.populate_teams()
+        if new_cred and self.team is None: # Editing default cred
+            for c in self.assoc_creds.all():
+                c.username = self.username
+                c.password = self.password
+                c.services = self.services.all()
+                c.save()
 
     def __str__(self):
         return '{}:{}'.format(self.username, self.password)

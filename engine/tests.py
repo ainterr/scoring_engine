@@ -27,48 +27,6 @@ class ManagementTests(TestCase):
 
         self.assertEqual(num_plugins_before, num_plugins_after)
 
-    def test_configure_team_no_services(self):
-        """
-        configure should not create a team if it has no services configured.
-        """
-
-        call_command('registerplugins')
-
-        config.TEAMS = [
-            {
-                'name': 'Team 1',
-                'services': [],
-                'credentials': [
-                    { 'username':'joe', 'password':'test', 'services':['http'] }
-                ]
-            }
-        ]
-
-        call_command('configure')
-
-        self.assertEqual(models.Team.objects.count(), 0)
-
-    def test_configure_team_no_credentials(self):
-        """
-        configure should not create a team if it has no credentials configured.
-        """
-
-        call_command('registerplugins')
-
-        config.TEAMS = [
-            {
-                'name': 'Team 1',
-                'services': [
-                    { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
-                ],
-                'credentials': []
-            }
-        ]
-
-        call_command('configure')
-
-        self.assertEqual(models.Team.objects.count(), 0)
-
     def test_configure_malformed_team(self):
         """
         configure should not create a malformed team.
@@ -95,24 +53,19 @@ class ManagementTests(TestCase):
 
         call_command('registerplugins')
 
-        config.TEAMS = [
+        config.SERVICES = [
             {
-                'name': 'Team 1',
-                'services': [
-                    { 'name':'test', 'ip':'10.0.0.100', 'port':80 },
-                ],
-                'credentials': [
-                    { 'username':'joe', 'password':'test', 'services':['http'] }
-                ]
+                'name': 'service1',
+                'subnet_host': 28,
+                'port': 890,
+                'plugin':'test'
             }
         ]
 
         call_command('configure')
 
-        team_count = models.Team.objects.count()
         service_count = models.Service.objects.count()
 
-        self.assertEqual(team_count, 1)
         self.assertEqual(service_count, 0)
 
     def test_configure_team_no_duplicate_teams(self):
@@ -125,21 +78,13 @@ class ManagementTests(TestCase):
         config.TEAMS = [
             {
                 'name': 'Team 1',
-                'services': [
-                    { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
-                ],
-                'credentials': [
-                    { 'username':'joe', 'password':'test', 'services':['http'] }
-                ]
+                'subnet':'192.168.1.0',
+                'netmask':'255.255.255.0'
             },
             {
                 'name': 'Team 1',
-                'services': [
-                    { 'name':'https', 'ip':'10.0.0.100', 'port':80 },
-                ],
-                'credentials': [
-                    { 'username':'joe', 'password':'test', 'services':['https'] }
-                ]
+                'subnet':'192.168.1.0',
+                'netmask':'255.255.255.0'
             }
         ]
 
@@ -156,17 +101,9 @@ class ManagementTests(TestCase):
 
         call_command('registerplugins')
 
-        config.TEAMS = [
-            {
-                'name': 'Team 1',
-                'services': [
-                    { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
-                    { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
-                ],
-                'credentials': [
-                    { 'username':'joe', 'password':'test', 'services':['http'] }
-                ]
-            },
+        config.SERVICES = [
+            { 'name':'http', 'subnet_host':'100', 'port':80, 'plugin':'http' },
+            { 'name':'http', 'subnet_host':'100', 'port':80, 'plugin':'http' },
         ]
 
         call_command('configure')
@@ -182,17 +119,9 @@ class ManagementTests(TestCase):
 
         call_command('registerplugins')
 
-        config.TEAMS = [
-            {
-                'name': 'Team 1',
-                'services': [
-                    { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
-                    { 'name':'http', 'ip':'10.0.0.123', 'port':8080 },
-                ],
-                'credentials': [
-                    { 'username':'joe', 'password':'test', 'services':['http'] }
-                ]
-            },
+        config.SERVICES = [
+            { 'name':'http', 'subnet_host':'100', 'port':80, 'plugin':'http' },
+            { 'name':'http', 'subnet_host':'123', 'port':8080, 'plugin':'http' },
         ]
 
         call_command('configure')
@@ -209,25 +138,15 @@ class ManagementTests(TestCase):
 
         call_command('registerplugins')
 
-        config.TEAMS = [
-            {
-                'name': 'Team 1',
-                'services': [
-                    { 'name':'http' },
-                ],
-                'credentials': [
-                    { 'username':'joe', 'password':'test', 'services':['http'] }
-                ]
-            },
+        config.SERVICES = [
+            { 'name':'http' },
         ]
 
         call_command('configure')
 
         service_count = models.Service.objects.count()
-        team_count = models.Team.objects.count()
 
         self.assertEqual(service_count, 0)
-        self.assertEqual(team_count, 1)
 
     def test_configure_team_malformed_credential(self):
         """
@@ -237,16 +156,8 @@ class ManagementTests(TestCase):
 
         call_command('registerplugins')
 
-        config.TEAMS = [
-            {
-                'name': 'Team 1',
-                'services': [
-                    { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
-                ],
-                'credentials': [
-                    { 'blah':'joe' }
-                ]
-            },
+        config.DEFAULT_CREDS = [
+            { 'blah':'joe' }
         ]
 
         call_command('configure')
@@ -262,17 +173,12 @@ class ManagementTests(TestCase):
 
         call_command('registerplugins')
 
-        config.TEAMS = [
-            {
-                'name': 'Team 1',
-                'services': [
-                    { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
-                ],
-                'credentials': [
-                    { 'username':'joe', 'password':'test', 'services':['http'] },
-                    { 'username':'joe', 'password':'test', 'services':['http'] }
-                ]
-            },
+        config.SERVICES = [
+            { 'name':'http', 'subnet_host':'100', 'port':80, 'plugin':'http' }
+        ]
+        config.DEFAULT_CREDS = [
+            { 'username':'joe', 'password':'test', 'services':['http'] },
+            { 'username':'joe', 'password':'test', 'services':['http'] }
         ]
 
         call_command('configure')
@@ -289,17 +195,12 @@ class ManagementTests(TestCase):
 
         call_command('registerplugins')
 
-        config.TEAMS = [
-            {
-                'name': 'Team 1',
-                'services': [
-                    { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
-                ],
-                'credentials': [
-                    { 'username':'joe', 'password':'test', 'services':['http'] },
-                    { 'username':'joe', 'password':'test', 'services':['http'] }
-                ]
-            },
+        config.SERVICES = [
+            { 'name':'http', 'subnet_host':'100', 'port':80, 'plugin':'http' }
+        ]
+        config.DEFAULT_CREDS = [
+            { 'username':'joe', 'password':'test', 'services':['http'] },
+            { 'username':'joe', 'password':'test', 'services':['http'] }
         ]
 
         call_command('configure')
@@ -317,16 +218,11 @@ class ManagementTests(TestCase):
 
         call_command('registerplugins')
 
-        config.TEAMS = [
-            {
-                'name': 'Team 1',
-                'services': [
-                    { 'name':'http', 'ip':'10.0.0.100', 'port':80 },
-                ],
-                'credentials': [
-                    { 'username':'joe', 'password':'test', 'services':['https'] },
-                ]
-            },
+        config.SERVICES = [
+            { 'name':'http', 'subnet_host':'100', 'port':80, 'plugin':'http' }
+        ]
+        config.DEFAULT_CREDS = [
+            { 'username':'joe', 'password':'test', 'services':['https'] },
         ]
 
         call_command('configure')
@@ -338,11 +234,11 @@ class ManagementTests(TestCase):
 
 class ModelsTests(TestCase):
     def setup_db(self):
-        t = models.Team(name='test')
+        t = models.Team(name='test', subnet='192.168.1.0', netmask='255.255.255.0')
         t.save()
         p = models.Plugin(name='http')
         p.save()
-        s = models.Service(name='svc', ip='10.0.0.1', port='80', team=t, plugin=p)
+        s = models.Service(name='svc', subnet_host='1', port='80', plugin=p)
         s.save()
         c = models.Credential(username='user', password='password', team=t)
         c.save()

@@ -17,64 +17,56 @@ class CredentialTests(TransactionTestCase):
         with self.assertRaises(ValidationError):
             models.Credential.objects.create(team=None)
         with self.assertRaises(ValidationError):
-            models.Credential.objects.create(default=True)
+            models.Credential.objects.create(default=None)
         with self.assertRaises(ValidationError):
             models.Credential.objects.create(username='tom')
         with self.assertRaises(ValidationError):
             models.Credential.objects.create(password='test')
         with self.assertRaises(ValidationError):
-            models.Credential.objects.create(team=None, default=True)
+            models.Credential.objects.create(team=None, default=None)
         with self.assertRaises(ValidationError):
             models.Credential.objects.create(team=None, username='tom')
         with self.assertRaises(ValidationError):
             models.Credential.objects.create(team=None, password='toor')
         with self.assertRaises(ValidationError):
-            models.Credential.objects.create(default=False, username='john')
+            models.Credential.objects.create(default=None, username='john')
         with self.assertRaises(ValidationError):
-            models.Credential.objects.create(default=False, password='john')
-        with self.assertRaises(ValidationError): # Default missing, integrity
-            models.Credential.objects.create(username='john', password='john')
+            models.Credential.objects.create(default=None, password='john')
         with self.assertRaises(ValidationError):
             models.Credential.objects.create(
-                team=None, default=False, username='john')
+                team=None, default=None, username='john')
         with self.assertRaises(ValidationError):
             models.Credential.objects.create(
-                team=None, default=False, password='john')
-        with self.assertRaises(ValidationError):
-            models.Credential.objects.create(
-                team=None, username='tom', password='john')
+                team=None, default=None, password='john')
 
         # Malformed arguments
         ## Team
         with self.assertRaises(ValueError): # Team is not a model or None
             models.Credential.objects.create(
-                team='Team1', default=True, username='tom', password='john')
+                team='Team1', default=None, username='tom', password='john')
         ## Default
-        with self.assertRaises(ValidationError): # Default is None
-            models.Credential.objects.create(
-                team=None, default=None, username='tom', password='john')
-        with self.assertRaises(ValidationError): # Default is not a boolean
+        with self.assertRaises(ValueError): # Default is not a Credential
             models.Credential.objects.create(
                 team=None, default=5, username='tom', password='john')
         # Username
         with self.assertRaises(ValidationError): # Username is None
             models.Credential.objects.create(
-                team=None, default=True, username=None, password='john')
+                team=None, default=None, username=None, password='john')
         with self.assertRaises(ValidationError): # Username is empty string
             models.Credential.objects.create(
-                team=None, default=True, username='', password='john')
+                team=None, default=None, username='', password='john')
         with self.assertRaises(ValidationError): # Username is too long
             models.Credential.objects.create(
-                team=None, default=True, username='a'*21, password='john')
+                team=None, default=None, username='a'*21, password='john')
         # Password
         with self.assertRaises(ValidationError): # Password is None
             models.Credential.objects.create(
-                team=None, default=True, username='tom', password=None)
+                team=None, default=None, username='tom', password=None)
         with self.assertRaises(ValidationError): # Password is empty string
             models.Credential.objects.create(
-                team=None, default=True, username='tom', password='')
+                team=None, default=None, username='tom', password='')
         with self.assertRaises(ValidationError): # Password is too long
             models.Credential.objects.create(
-                team=None, default=True, username='tom', password='b'*41)
+                team=None, default=None, username='tom', password='b'*41)
 
 # TODO Finish writing tests

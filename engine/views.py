@@ -188,36 +188,17 @@ def default_creds(request):
     if request.method == 'POST':
         if 'delete' in request.POST:
             cred = models.Credential.objects.get(pk=request.POST['id'])
-            for c in models.Credential.objects.filter(
-              default=True, username=cred.username, password=cred.password):
-                c.delete()
-        elif 'edit' in request.POST:
-            cred = models.Credential.objects.get(pk=request.POST['id'])
-            # Need to grab fields since submitting the form will modify 
-            # the cred object
-            username, password = cred.username, cred.password
+            cred.delete()
+        else:
+            if 'edit' in request.POST:
+                cred = models.Credential.objects.get(pk=request.POST['id'])
+            else:
+                cred = None
 
             form = forms.ModelFormFactory(models.Credential, 
                      ['default', 'team'])(request.POST, instance=cred)
             if form.is_valid():
-                assoc_creds = models.Credential.objects.filter(
-                    default=True, username=username, password=password)
-                for c in assoc_creds:
-                    c.username=form.cleaned_data['username']
-                    c.password=form.cleaned_data['password']
-                    c.services = form.cleaned_data['services']
-                    c.save()
-        else:
-            form = forms.ModelFormFactory(models.Credential,
-                     ['default', 'team'])(request.POST)
-            if form.is_valid():
-                cred = form.save(commit=False)
-                cred.default = True
-                for team in list(models.Team.objects.all())+[None]:
-                    cred.pk = None
-                    cred.team = team
-                    cred.save()
-                    form.save_m2m()
+                cred = form.save() 
 
     context['credentials'] = models.Credential.objects.filter(team=None)
     context['credential_forms'] = gen_model_forms(models.Credential)

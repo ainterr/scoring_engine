@@ -123,8 +123,8 @@ class TeamTests(TransactionTestCase):
             name='Team1', subnet='192.168.1.0', netmask='255.255.255.0')
         self.assertEqual(models.Credential.objects.count(), 0)
 
-        models.Credential.objects.create( # Default Credential w/o service
-            team=None, default=True, username='test', password='toor')
+        c = models.Credential.objects.create( # Default Credential w/o service
+            team=None, default=None, username='test', password='toor')
         self.assertEqual(models.Credential.objects.count(), 2)
         models.Team.objects.create(
             name='Team2', subnet='192.168.2.0', netmask='255.255.255.0')
