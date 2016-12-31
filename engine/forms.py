@@ -25,6 +25,19 @@ class UserForm(forms.ModelForm):
         model = models.User
         fields = ['username', 'password', 'team']
 
+
+class DefaultCredentialForm(forms.ModelForm):
+    def save(self):
+        self.instance.save()
+        services = list(self.cleaned_data['services'].all())
+        self.instance.services = services
+        self.instance.save()
+ 
+    class Meta:
+        model = models.Credential
+        exclude = ['team', 'default']
+
+
 class BulkPasswordForm(forms.ModelForm):
     changeList = forms.CharField(
         label='Password Changes',
@@ -50,17 +63,14 @@ class BulkPasswordForm(forms.ModelForm):
                         team=team,
                         username=user,
                         password=passwd,
-                        default=None
+                        default=None,
+                        services=[service]
                     )
-                    new_cred.services.add(service)
-                    new_cred.save()
-                    
                 else:
                     cred.password = passwd
                     cred.save()
             except models.Credential.DoesNotExist:
                 pass # User entered a credential which doesn't exist. Ignore it
-
 
     class Meta:
         model = models.Credential

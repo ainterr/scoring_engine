@@ -35,14 +35,13 @@ def delete(post_req):
 
     model.objects.get(pk=pk).delete()
 
-def gen_model_forms(model):
+def gen_model_forms(form, model):
     """Creates a dict of forms. model_forms[0] is a blank form used for adding
        new model objects. model_forms[m.pk] is an editing form pre-populated
        the fields of m"""
-    form_class = forms.ModelFormFactory(model)
-    model_forms = {0: form_class()}
+    model_forms = {0: form()}
     for m in model.objects.all():
-        model_forms[m.pk] = form_class(instance=m)
+        model_forms[m.pk] = form(instance=m)
     return model_forms
 
 def get_status(team):
@@ -58,7 +57,8 @@ def get_status(team):
             total_passed = results.filter(status=True).count()
             percent = '{:.2f}'.format(total_passed/float(total)*100)
             style = 'success' if last_result.status else 'danger'
-        else: status = 'UNKNOWN'
+        else:
+            status = 'UNKNOWN'
             total = 0
             total_passed = 0
             percent = '{:.2f}'.format(0.0)
@@ -117,8 +117,9 @@ def teams(request):
         else:
             simple_add_modify(request)
     
+    form = forms.ModelFormFactory(models.Team)
     context['teams'] = models.Team.objects.all()
-    context['team_forms'] = gen_model_forms(models.Team)
+    context['team_forms'] = gen_model_forms(form, models.Team)
     
     return render(request, 'teams.html', context)
 
@@ -170,11 +171,10 @@ def services(request):
             delete(request.POST)
         else:
             simple_add_modify(request)
-    else:
-        form = forms.ModelFormFactory(models.Service)()
 
+    form = forms.ModelFormFactory(models.Service)
     context['services'] = models.Service.objects.all()
-    context['service_forms'] = gen_model_forms(models.Service)
+    context['service_forms'] = gen_model_forms(form, models.Service)
     return render(request, 'services.html', context)
 
 @login_required
@@ -186,10 +186,18 @@ def default_creds(request):
         if 'delete' in request.POST:
             delete(request.POST)
         else:
-            simple_add_modify(request, ex=['team', 'default'])
+            if 'id' in request.POST:
+                inst = models.Credential.objects.get(pk=request.POST['id'])
+            else:
+                inst = None
+            inst = None
+            form = forms.DefaultCredentialForm(request.POST, instance=inst)
+            if form.is_valid():
+                form.save()
 
+    form = forms.DefaultCredentialForm
     context['credentials'] = models.Credential.objects.filter(team=None)
-    context['credential_forms'] = gen_model_forms(models.Credential)
+    context['credential_forms'] = gen_model_forms(form, models.Credential)
     context['services'] = models.Service.objects.all()
 
     return render(request, 'credentials.html', context)

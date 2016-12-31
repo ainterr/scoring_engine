@@ -143,8 +143,6 @@ class Credential(models.Model):
     def __init__(self, *args, services=[], **kwargs):
         super(Credential, self).__init__(*args, **kwargs)
         self.services_tmp = services
-#        if kwargs['default'] is not None:
-#            raise Exception(services)
 
     def clean(self):
         if self.username == '':
