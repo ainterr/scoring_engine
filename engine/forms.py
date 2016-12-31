@@ -39,11 +39,11 @@ class BulkPasswordForm(forms.ModelForm):
         for line in self.cleaned_data['changeList'].split('\n'):
             user,passwd = line.strip().split(':')
             try:
-                cred = models.Credential.objects.get(team=team, username=user, services=service)
+                cred = models.Credential.objects.get(
+                    team=team, username=user, services=service)
                 if cred.services.count() > 1:
                     # Create new object, remove service from cred.services
                     cred.services.remove(service)
-                    cred.default = None
                     cred.save()
     
                     new_cred = models.Credential.objects.create(
@@ -57,7 +57,6 @@ class BulkPasswordForm(forms.ModelForm):
                     
                 else:
                     cred.password = passwd
-                    cred.default=None
                     cred.save()
             except models.Credential.DoesNotExist:
                 pass # User entered a credential which doesn't exist. Ignore it

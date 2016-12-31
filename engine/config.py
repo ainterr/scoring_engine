@@ -60,7 +60,7 @@ SERVICES = [
     { 'name':'ldap',  'subnet_host':'134', 'port':389,  'plugin':'ldap' },
     { 'name':'ftp',   'subnet_host':'152', 'port':21,   'plugin':'ftp' },
     { 'name':'mssql', 'subnet_host':'152', 'port':3308, 'plugin':'mssql' },
-    { 'name':'mysql', 'subnet_host':'152', 'port':3308, 'plugin':'mysql' },
+    { 'name':'mysql', 'subnet_host':'152', 'port':3309, 'plugin':'mysql' },
     { 'name':'https', 'subnet_host':'152', 'port':443,  'plugin':'https' },
     { 'name':'smb',   'subnet_host':'134', 'port':139,  'plugin':'smb' },
 ] 

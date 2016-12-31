@@ -35,7 +35,7 @@ class Team(models.Model):
                              strict=False)
         except ValueError:
             raise ValidationError('Team subnet/netmask should be a valid IP network')
-        for team in Team.objects.all():
+        for team in Team.objects.exclude(pk=self.pk):
           other_net = ip_network('{}/{}'.format(team.subnet, team.netmask),
                                  strict=False)
           if net.overlaps(other_net):
@@ -114,7 +114,7 @@ class Service(models.Model):
         if self.port not in range(1, 65536):
             raise ValidationError('Service port not in valid range 1-65535')
 
-        for service in Service.objects.all():
+        for service in Service.objects.exclude(pk=self.pk):
             if self.subnet_host == service.subnet_host and \
                self.port == service.port:
                 raise ValidationError('Service already exists on host {} port {}'.format(self.subnet_host, self.port))
@@ -140,6 +140,12 @@ class Credential(models.Model):
 
     services = models.ManyToManyField(Service, related_name='credentials')
 
+    def __init__(self, *args, services=[], **kwargs):
+        super(Credential, self).__init__(*args, **kwargs)
+        self.services_tmp = services
+#        if kwargs['default'] is not None:
+#            raise Exception(services)
+
     def clean(self):
         if self.username == '':
             raise ValidationError('Credential should not have blank username')
@@ -148,21 +154,34 @@ class Credential(models.Model):
 
     def populate_teams(self):
         """If this is a default cred, populate all teams with copies of self"""
-        if self.team != None: # This is not a default cred
+        if self.team is not None: # This is not a default cred
             return
+
         team_pks = [c.team.pk for c in self.assoc_creds.all()]
         for t in Team.objects.exclude(pk__in=team_pks):
             c = Credential.objects.create(team=t, username=self.username,
-                                      password=self.password, default=self)
-            c.services = self.services.all()
+                                      password=self.password, default=self,
+                                      services=self.services.all())
 
     def save(self, *args, **kwargs):
         self.full_clean()
         new_cred = self.pk is None
+
+        if not new_cred and self.default is not None and \
+           (self.username != self.default.username or \
+           self.password != self.default.password or \
+           list(self.services.all()) != list(self.default.services.all())):
+            self.default = None # Assoc_cred is edited, unlink it
+
         super(Credential, self).save(*args, **kwargs)
+
+        if self.services_tmp != []: # Update m2m, now that saving is done
+            self.services = self.services_tmp
+            self.services_tmp = []
+
         if new_cred and self.team is None: # New default cred
             self.populate_teams()
-        if new_cred and self.team is None: # Editing default cred
+        if not new_cred and self.team is None: # Editing default cred
             for c in self.assoc_creds.all():
                 c.username = self.username
                 c.password = self.password

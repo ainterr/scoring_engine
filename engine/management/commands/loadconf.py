@@ -45,14 +45,13 @@ class Command(BaseCommand):
         for credential in config.DEFAULT_CREDS:
             try:
                 with transaction.atomic():
-                    for t in list(models.Team.objects.all())+[None]:
-                        c, s = models.Credential.objects.get_or_create(
-                            username=credential['username'],
-                            password=credential['password'],
-                            team=t,
-                            default=True
-                        )
-                        c.save()
+                    c, s = models.Credential.objects.get_or_create(
+                        username=credential['username'],
+                        password=credential['password'],
+                        team=None,
+                        default=None
+                    )
+                    c.save()
 
                     if len(credential['services']) == 0:
                         raise IntegrityError('Credential {}:{} not created: credentials must have at least one service'.format(credential['username'], credential['password']))

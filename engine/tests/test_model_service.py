@@ -123,6 +123,14 @@ class ServiceTests(TransactionTestCase):
             name='Service4', subnet_host=2, port=80, plugin=self.http)
         self.assertEqual(models.Service.objects.count(), 4)
 
+    def test_service_plugin_delete_cascade(self):
+        """When a service's plugin is deleted, the service is also deleted"""
+        models.Service.objects.create(
+            name='Service', subnet_host=5, port=39, plugin=self.http)
+        self.assertEqual(models.Service.objects.count(), 1)
+        self.http.delete()
+        self.assertEqual(models.Service.objects.count(), 0)
+
     def test_service_ip_calculation(self):
         """IPs should be properly calculated from subnet and netmask"""
         s1 = models.Service.objects.create(

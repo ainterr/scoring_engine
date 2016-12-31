@@ -5,19 +5,23 @@ from django.contrib import messages
 
 from . import models, forms
 
-def simple_add_modify(request, ex=[]):
-    model_str = request.POST['type']
-    
-    if model_str == 'team':
-        model = models.Team
-    if model_str == 'service':
+def model_from_str(model_str):
+    if model_str == 'user':
+        model = models.User
+    elif model_str == 'service':
         model = models.Service
-    if model_str == 'credential':
+    elif model_str == 'credential':
         model = models.Credential
+    elif model_str == 'team':
+        model = models.Team
+    return model
 
-    if 'id' in request.POST:
+def simple_add_modify(request, ex=[]):
+    model = model_from_str(request.POST['type'])
+    
+    if 'id' in request.POST: # Editing
         inst = model.objects.get(id=request.POST['id'])
-    else:
+    else: # New
         inst = None
 
     form = forms.ModelFormFactory(model, ex)(request.POST, instance=inst)
@@ -26,26 +30,20 @@ def simple_add_modify(request, ex=[]):
         form.save()
 
 def delete(post_req):
-    model_type = post_req['type']
+    model = model_from_str(post_req['type'])
     pk = post_req['id']
-    if model_type == 'user':
-        model = models.User
-    if model_type == 'service':
-        model = models.Service
-    if model_type == 'credential':
-        model = models.Credential
-    if model_type == 'team':
-        model = models.Team
 
     model.objects.get(pk=pk).delete()
 
-def gen_model_forms(model_type):
-    form_class = forms.ModelFormFactory(model_type)
+def gen_model_forms(model):
+    """Creates a dict of forms. model_forms[0] is a blank form used for adding
+       new model objects. model_forms[m.pk] is an editing form pre-populated
+       the fields of m"""
+    form_class = forms.ModelFormFactory(model)
     model_forms = {0: form_class()}
-    for m in model_type.objects.all():
+    for m in model.objects.all():
         model_forms[m.pk] = form_class(instance=m)
     return model_forms
-
 
 def get_status(team):
     check_results = []
@@ -60,8 +58,7 @@ def get_status(team):
             total_passed = results.filter(status=True).count()
             percent = '{:.2f}'.format(total_passed/float(total)*100)
             style = 'success' if last_result.status else 'danger'
-        else:
-            status = 'UNKNOWN'
+        else: status = 'UNKNOWN'
             total = 0
             total_passed = 0
             percent = '{:.2f}'.format(0.0)
@@ -115,10 +112,10 @@ def teams(request):
     context = {}
 
     if request.method == 'POST':
-            if 'delete' in request.POST:
-                delete(request.POST)
-            else:
-                simple_add_modify(request)
+        if 'delete' in request.POST:
+            delete(request.POST)
+        else:
+            simple_add_modify(request)
     
     context['teams'] = models.Team.objects.all()
     context['team_forms'] = gen_model_forms(models.Team)
@@ -168,7 +165,7 @@ def team_detail(request, pk):
 def services(request):
     context = {}
 
-    if request.method == 'POST' and request.POST['type'] == 'service':
+    if request.method == 'POST':
         if 'delete' in request.POST:
             delete(request.POST)
         else:
@@ -187,18 +184,9 @@ def default_creds(request):
 
     if request.method == 'POST':
         if 'delete' in request.POST:
-            cred = models.Credential.objects.get(pk=request.POST['id'])
-            cred.delete()
+            delete(request.POST)
         else:
-            if 'edit' in request.POST:
-                cred = models.Credential.objects.get(pk=request.POST['id'])
-            else:
-                cred = None
-
-            form = forms.ModelFormFactory(models.Credential, 
-                     ['default', 'team'])(request.POST, instance=cred)
-            if form.is_valid():
-                cred = form.save() 
+            simple_add_modify(request, ex=['team', 'default'])
 
     context['credentials'] = models.Credential.objects.filter(team=None)
     context['credential_forms'] = gen_model_forms(models.Credential)
