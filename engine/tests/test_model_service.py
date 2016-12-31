@@ -145,3 +145,103 @@ class ServiceTests(TransactionTestCase):
         self.assertEqual(ip3, '192.168.1.3')
         ip4 = s2.ip('192.168.1.128', '255.255.255.128')
         self.assertEqual(ip4, '192.168.1.143')
+
+    def test_service_malformed_edit(self):
+        """Services should raise an error when edited with malformed data"""
+        s = models.Service.objects.create(
+            name='Service', subnet_host=1, port=93, plugin=self.http)
+
+        with self.assertRaises(ValidationError): # Name is None
+            s.name = None
+            s.save()
+        with self.assertRaises(ValidationError): # Name is empty
+            s.name = ''
+            s.save()
+        with self.assertRaises(ValidationError): # Name is too long
+            s.name = 'a'*21
+            s.save()
+        ## Subnet_host
+        with self.assertRaises(ValidationError): # Subnet_host is None
+            s.subnet_host = None
+            s.save()
+        with self.assertRaises(ValidationError): # Subnet_host is not a number
+            s.subnet_host = 'hi'
+            s.save()
+        with self.assertRaises(ValidationError): # Subnet_host is negative
+            s.subnet_host = -1
+            s.save()
+        # Port
+        with self.assertRaises(ValidationError): # Port is None
+            s.port = None
+            s.save()
+        with self.assertRaises(ValidationError): # Port is not a number
+            s.port = 'oh'
+            s.save()
+        with self.assertRaises(ValidationError): # Port is negative
+            s.port = -1
+            s.save()
+        with self.assertRaises(ValidationError): # Port is outside port range
+            s.port = 65536
+            s.save()
+        with self.assertRaises(ValidationError): # Port is outside port range
+            s.port = 0
+            s.save()
+        # Plugin
+        with self.assertRaises(ValidationError): # Plugin is None
+            s.plugin = None
+            s.save()
+        with self.assertRaises(ValueError): # Plugin is not a model object
+            s.plugin = 'http'
+            s.save()
+
+    def test_service_edit(self):
+        """Service fields should be updated when properly edited"""
+        s = models.Service.objects.create(
+            name='Service', subnet_host=1, port=93, plugin=self.http)
+        s.name = 'kdkdkdkd'
+        s.save()
+        s = models.Service.objects.get(pk=s.pk)
+        self.assertEqual(s.name, 'kdkdkdkd')
+
+        s.subnet_host = 5
+        s.save()
+        s = models.Service.objects.get(pk=s.pk)
+        self.assertEqual(s.subnet_host, 5)
+
+        s.port = 5
+        s.save()
+        s = models.Service.objects.get(pk=s.pk)
+        self.assertEqual(s.port, 5)
+
+        s.plugin = self.smb
+        s.save()
+        s = models.Service.objects.get(pk=s.pk)
+        self.assertEqual(s.plugin, self.smb)
+
+    def test_service_edit_same_names(self):
+        """Services with the same name are not allowed when editing"""
+        models.Service.objects.create(
+            name='Service1', subnet_host=1, port=30, plugin=self.http)
+        s = models.Service.objects.create(
+            name='Service2', subnet_host=2, port=38, plugin=self.http)
+        with self.assertRaises(ValidationError):
+            s.name = 'Service1'
+            s.save()
+
+    def test_service_edit_same_host_port(self):
+        """Services with the same host/port combo are not allowed
+           when editing"""
+        models.Service.objects.create(
+            name='Service1', subnet_host=1, port=30, plugin=self.http)
+
+        s = models.Service.objects.create(
+            name='Service2', subnet_host=2, port=30, plugin=self.smb)
+        with self.assertRaises(ValidationError):
+            s.subnet_host = 1
+            s.save()
+
+        s = models.Service.objects.create(
+            name='Service3', subnet_host=1, port=50, plugin=self.smb)
+        with self.assertRaises(ValidationError):
+            s.port = 30
+            s.save()
