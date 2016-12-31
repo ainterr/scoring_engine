@@ -20,7 +20,7 @@ def simple_add_modify(request, ex=[]):
     model = model_from_str(request.POST['type'])
     
     if 'id' in request.POST: # Editing
-        inst = model.objects.get(id=request.POST['id'])
+        inst = model.objects.get(pk=request.POST['id'])
     else: # New
         inst = None
 
