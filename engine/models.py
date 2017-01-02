@@ -5,12 +5,28 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
 
 from ipaddress import ip_network, ip_address
+from . import plugins
+import os
 
 class Plugin(models.Model):
-    name = models.CharField(max_length=20, blank=False)
+    name = models.CharField(max_length=20, blank=False, unique=True)
 
     # Service creates a field here called 'services'
     # Result creates a field here called 'results'
+
+    def clean(self):
+        if self.pk is not None:
+            raise ValidationError('Plugins cannot be edited')
+        ps = os.listdir(plugins.__path__[0])
+        py_file = '{}.py'.format(self.name)
+        name_is_in = [py_file == p for p in ps]
+        if not any(name_is_in):
+            raise ValidationError(
+                'Not a valid plugin name:{}'.format(self.name))
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Plugin, self).save(*args, **kwargs)
 
     def __str__(self):
         return '{}'.format(self.name)
@@ -26,20 +42,20 @@ class Team(models.Model):
 
     def clean(self):
         if not isinstance(self.name, str):
-            raise ValidationError('Team name must be a string')
+            raise ValidationError('Team name must be a string.')
         if self.name == '':
-            raise ValidationError('Team should not have a blank name')
+            raise ValidationError('Team should not have a blank name.')
 
         try:
             net = ip_network('{}/{}'.format(self.subnet, self.netmask),
                              strict=False)
         except ValueError:
-            raise ValidationError('Team subnet/netmask should be a valid IP network')
+            raise ValidationError('Team subnet/netmask should be a valid IP network.')
         for team in Team.objects.exclude(pk=self.pk):
           other_net = ip_network('{}/{}'.format(team.subnet, team.netmask),
                                  strict=False)
           if net.overlaps(other_net):
-              raise ValidationError('Team subnets should not overlap')
+              raise ValidationError('Team subnets should not overlap.')
 
     def __str__(self):
         return '{}, id={}'.format(self.name, self.id)
@@ -194,7 +210,16 @@ class Result(models.Model):
     
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='results')
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='results')
-    plugin = models.ForeignKey(Plugin, on_delete=models.CASCADE, related_name='results')
+
+    def clean(self):
+        if self.pk is not None:
+            raise ValidationError('Results cannot be edited')
+        if self.status is None:
+            raise ValidationError('Result status cannot be None')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Result, self).save(*args, **kwargs)
 
     def __str__(self):
         return '{}'.format('PASSED' if self.status else 'FAILED')
