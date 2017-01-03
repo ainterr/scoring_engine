@@ -190,7 +190,6 @@ def default_creds(request):
                 inst = models.Credential.objects.get(pk=request.POST['id'])
             else:
                 inst = None
-            inst = None
             form = forms.DefaultCredentialForm(request.POST, instance=inst)
             if form.is_valid():
                 form.save()

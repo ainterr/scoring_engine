@@ -60,7 +60,6 @@ def poll():
             models.Result(
                 team=team, 
                 service=service, 
-                plugin=service.plugin, 
                 status=success
             ).save()
 

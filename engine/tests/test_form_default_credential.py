@@ -217,6 +217,7 @@ class DefaultCredentialFormTests(TransactionTestCase):
         form.save()
         c = models.Credential.objects.get(pk=c.pk) # Reload from DB
         self.assertEqual(c.username, 'blah')
+        self.assertEqual(models.Credential.objects.count(), 3)
 
         data['password'] = 'blop'
         form = self.form_class(data, instance=c)
@@ -224,6 +225,7 @@ class DefaultCredentialFormTests(TransactionTestCase):
         form.save()
         c = models.Credential.objects.get(pk=c.pk) # Reload from DB
         self.assertEqual(c.password, 'blop')
+        self.assertEqual(models.Credential.objects.count(), 3)
 
         data['services'] = [self.service1, self.service2]
         form = self.form_class(data, instance=c)
@@ -232,6 +234,7 @@ class DefaultCredentialFormTests(TransactionTestCase):
         c = models.Credential.objects.get(pk=c.pk) # Reload from DB
         self.assertEqual(set(c.services.all()),
                          set([self.service1, self.service2]))
+        self.assertEqual(models.Credential.objects.count(), 3)
 
     def test_default_cred_form_edit_propagation(self):
         """When default credentials are edited through a form,
