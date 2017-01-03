@@ -97,6 +97,41 @@ class DefaultCredentialFormTests(TransactionTestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors['services'], ['This field is required.'])
 
+    def test_default_credential_form_same_team_username_services(self):
+        models.Credential.objects.create(
+            team=None, default=None, username='what', password='krit',
+            services=[self.service1])
+
+        data = {'username':'what', 'password':'lbah',
+                'services':[self.service1]}
+        form = self.form_class(data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['__all__'],
+            ['A credential already has the that username/service pair on this team.'])
+
+        models.Credential.objects.create(
+            team=None, default=None, username='kruft', password='krit',
+            services=[self.service1, self.service2])
+
+        data = {'username':'kruft', 'password':'lbah',
+                'services':[self.service1]}
+        form = self.form_class(data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['__all__'],
+            ['A credential already has the that username/service pair on this team.'])
+
+        data['services'] = [self.service2]
+        form = self.form_class(data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['__all__'],
+            ['A credential already has the that username/service pair on this team.'])
+
+        data['services'] = [self.service1, self.service2]
+        form = self.form_class(data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['__all__'],
+            ['A credential already has the that username/service pair on this team.'])
+
     def test_default_credentials_correct_form(self):
         """Default credentials with the correct arguments are
            allowed in forms"""
@@ -201,6 +236,61 @@ class DefaultCredentialFormTests(TransactionTestCase):
         form = self.form_class(data, instance=c)
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors['services'], ['This field is required.'])
+
+
+    def test_default_credentials_form_edit_same_team_username_service(self):
+        """Credentials with the same team and username, and an overlapping
+           set of services are not allowed when editing in a form"""
+        models.Credential.objects.create(
+            team=None, default=None, username='what', password='krit',
+            services=[self.service1])
+        c = models.Credential.objects.create(
+            team=None, default=None, username='what', password='lbah',
+            services=[self.service2])
+
+        data = {'username':'what', 'password':'lbah',
+                'services':[self.service1]}
+        form = self.form_class(data, instance=c)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['__all__'],
+            ['A credential already has the that username/service pair on this team.'])
+
+        data['username'] = 'huh'
+        data['services'] = [self.service1]
+        form = self.form_class(data, instance=c)
+        self.assertTrue(form.is_valid())
+        c.save()
+
+        data['username'] = 'what'
+        form = self.form_class(data, instance=c)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['__all__'],
+            ['A credential already has the that username/service pair on this team.'])
+
+        models.Credential.objects.create(
+            team=None, default=None, username='kruft', password='krit',
+            services=[self.service1, self.service2])
+        c = models.Credential.objects.create(
+            team=None, default=None, username='kruft', password='lbah',
+            services=[])
+
+        data = {'username':'kruft', 'password':'lbah',
+                'services':[self.service1]}
+        form = self.form_class(data, instance=c)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['__all__'],
+            ['A credential already has the that username/service pair on this team.'])
+
+        data['services'] = [self.service2]
+        form = self.form_class(data, instance=c)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['__all__'],
+            ['A credential already has the that username/service pair on this team.'])
+        data['services'] = [self.service1, self.service2]
+        form = self.form_class(data, instance=c)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['__all__'],
+            ['A credential already has the that username/service pair on this team.'])
 
     def test_default_credential_edit_form(self):
         """Default credentials should be properly updated when edited through

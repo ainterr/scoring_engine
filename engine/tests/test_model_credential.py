@@ -3,6 +3,9 @@ from django.test import TransactionTestCase
 from django.core.exceptions import ValidationError
 from .. import models
 
+import logging
+logging.disable(logging.ERROR)
+
 class CredentialTests(TransactionTestCase):
     def setUp(self):
         call_command('registerplugins')
@@ -76,6 +79,33 @@ class CredentialTests(TransactionTestCase):
         with self.assertRaises(ValidationError): # Password is too long
             models.Credential.objects.create(
                 team=None, default=None, username='tom', password='b'*41)
+
+    def test_credentials_same_team_username_service(self):
+        """Credentials with the same team and username, and an overlapping
+           set of services are not allowed"""
+        models.Credential.objects.create(
+            team=self.team1, default=None, username='what', password='krit',
+            services=[self.service1])
+        with self.assertRaises(ValidationError):
+            models.Credential.objects.create(
+                team=self.team1, default=None, username='what', password='lbah',
+                services=[self.service1])
+
+        models.Credential.objects.create(
+            team=None, default=None, username='kruft', password='krit',
+            services=[self.service1, self.service2])
+        with self.assertRaises(ValidationError):
+            models.Credential.objects.create(
+                team=None, default=None, username='kruft', password='lbah',
+                services=[self.service1])
+        with self.assertRaises(ValidationError):
+            models.Credential.objects.create(
+                team=None, default=None, username='kruft', password='lbah',
+                services=[self.service2])
+        with self.assertRaises(ValidationError):
+            models.Credential.objects.create(
+                team=None, default=None, username='kruft', password='lbah',
+                services=[self.service1, self.service2])
 
     def test_credentials_correct(self):
         """Credentials with the correct arguments are allowed"""
@@ -182,6 +212,43 @@ class CredentialTests(TransactionTestCase):
             c.save()
         with self.assertRaises(ValidationError): # Password is too long
             c.password = 'b'*41
+            c.save()
+
+    def test_credentials_edit_same_team_username_service(self):
+        """Credentials with the same team and username, and an overlapping
+           set of services are not allowed when editing"""
+        models.Credential.objects.create(
+            team=self.team1, default=None, username='what', password='krit',
+            services=[self.service1])
+        c = models.Credential.objects.create(
+            team=self.team1, default=None, username='what', password='lbah',
+            services=[self.service2])
+        with self.assertRaises(ValidationError):
+            c.services=[self.service1]
+            c.save()
+
+        c.username = 'huh'
+        c.services = [self.service1]
+        c.save()
+
+        with self.assertRaises(ValidationError):
+            c.username='what'
+            c.save()
+
+        models.Credential.objects.create(
+            team=None, default=None, username='kruft', password='krit',
+            services=[self.service1, self.service2])
+        c = models.Credential.objects.create(
+            team=None, default=None, username='kruft', password='lbah',
+            services=[])
+        with self.assertRaises(ValidationError):
+            c.services = [self.service1]
+            c.save()
+        with self.assertRaises(ValidationError):
+            c.services = [self.service2]
+            c.save()
+        with self.assertRaises(ValidationError):
+            c.services = [self.service1, self.service2]
             c.save()
 
     def test_credential_edit(self):

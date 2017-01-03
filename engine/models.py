@@ -166,6 +166,15 @@ class Credential(models.Model):
         if self.password == '':
             raise ValidationError('Credential should not have blank password')
 
+        if self.pk is None:
+            services = self.services_tmp
+        else:
+            services = self.services.all()
+        for c in Credential.objects.filter(team=self.team).exclude(pk=self.pk):
+            if self.username == c.username and \
+               not set(services).isdisjoint(set(c.services.all())):
+                raise ValidationError('A credential already has the that username/service pair on this team.')
+
     def populate_teams(self):
         """If this is a default cred, populate all teams with copies of self"""
         if self.team is not None: # This is not a default cred

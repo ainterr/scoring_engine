@@ -1,5 +1,6 @@
 from django import forms
 from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 from . import models
 
 def ModelFormFactory(model_class, ex=[]):
@@ -27,6 +28,17 @@ class UserForm(forms.ModelForm):
 
 
 class DefaultCredentialForm(forms.ModelForm):
+    def clean(self):
+        if 'username' in self.cleaned_data and 'services' in self.cleaned_data:
+            username = self.cleaned_data['username']
+            services = self.cleaned_data['services']
+            for c in models.Credential.objects.filter(team=None).exclude(
+               pk=self.instance.pk):
+                if username == c.username and \
+                   not set(services).isdisjoint(set(c.services.all())):
+                    raise ValidationError('A credential already has the that username/service pair on this team.')
+        return self.cleaned_data
+
     def save(self):
         self.instance.save()
         services = list(self.cleaned_data['services'].all())
