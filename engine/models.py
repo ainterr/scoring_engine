@@ -122,18 +122,18 @@ class Service(models.Model):
 
     def clean(self):
         if self.name == '':
-            raise ValidationError('Service should not have blank name')
+            raise ValidationError('Service should not have blank name.')
 
         if not isinstance(self.subnet_host, int) or self.subnet_host < 0:
-            raise ValidationError('Service subnet host must be positive')
+            raise ValidationError('Service subnet host must be positive.')
 
         if self.port not in range(1, 65536):
-            raise ValidationError('Service port not in valid range 1-65535')
+            raise ValidationError('Service port not in valid range 1-65535.')
 
         for service in Service.objects.exclude(pk=self.pk):
             if self.subnet_host == service.subnet_host and \
                self.port == service.port:
-                raise ValidationError('Service already exists on host {} port {}'.format(self.subnet_host, self.port))
+                raise ValidationError('Service already exists on host {} port {}.'.format(self.subnet_host, self.port))
 
     def save(self, *args, **kwargs):
         self.full_clean()

@@ -1,4 +1,4 @@
-from django.test import TransactionTestCase, Client
+from django.test import TransactionTestCase
 from django.core.exceptions import ValidationError
 from .. import models, forms
 
@@ -147,7 +147,7 @@ class TeamFormTests(TransactionTestCase):
             ['Team subnet/netmask should be a valid IP network.'])
 
     def test_team_same_names_form(self):
-        """Teams with the same name are not allowed"""
+        """Teams with the same name are not allowed in form submissions"""
         models.Team.objects.create(
             name='Team1', subnet='192.168.1.0', netmask='255.255.255.0')
 
@@ -159,7 +159,7 @@ class TeamFormTests(TransactionTestCase):
             ['Team with this Name already exists.'])
 
     def test_team_overlapping_subnet_form(self):
-        """Teams with overlapping subnets are not allowed"""
+        """Teams with overlapping subnets are not allowed in form submissions"""
         models.Team.objects.create(
             name='Team1', subnet='192.168.1.0', netmask='255.255.255.0')
 
@@ -181,7 +181,7 @@ class TeamFormTests(TransactionTestCase):
             ['Team subnets should not overlap.'])
 
     def test_team_correct_form(self):
-        """Correctly created teams should be allowed"""
+        """Correctly created teams should be allowed in form submissions"""
         self.assertEqual(models.Team.objects.count(), 0)
         data = {'name':'Team1', 'subnet':'192.168.1.0',
                 'netmask':'255.255.255.0'}
@@ -214,7 +214,7 @@ class TeamFormTests(TransactionTestCase):
 
     def test_team_default_credentials_form(self):
         """New teams should be populated with default credentials
-           if they are available"""
+           if they are available when team forms are submitted"""
         # Creating a new team w/ no default creds set
         self.assertEqual(models.Credential.objects.count(), 0)
         data = {'name':'Team1', 'subnet':'192.168.1.0',
@@ -334,8 +334,9 @@ class TeamFormTests(TransactionTestCase):
         self.assertEqual(form.errors['netmask'],
             ['Enter a valid IPv4 or IPv6 address.'])
 
-    def test_team_edit_same_name(self):
-        """Teams with the same name are not allowed, when editing"""
+    def test_team_edit_same_name_form(self):
+        """Teams with the same name are not allowed in form submissions,
+           when editing"""
         models.Team.objects.create(
             name='Team1', subnet='192.168.1.0', netmask='255.255.255.0')
         t = models.Team.objects.create(
@@ -348,8 +349,8 @@ class TeamFormTests(TransactionTestCase):
         self.assertEqual(form.errors['name'],
             ['Team with this Name already exists.'])
 
-    def test_team_edit_overlapping_subnet(self):
-        """Teams with overlapping subnets are not allowed"""
+    def test_team_edit_overlapping_subnet_form(self):
+        """Teams with overlapping subnets are not allowed in form submissions"""
         models.Team.objects.create(
             name='Team1', subnet='192.168.1.0', netmask='255.255.255.0')
         t = models.Team.objects.create(
@@ -374,8 +375,9 @@ class TeamFormTests(TransactionTestCase):
         self.assertEqual(form.errors['__all__'],
             ['Team subnets should not overlap.'])
 
-    def test_team_edit(self):
-        """Fields should be properly updated when a team is edited"""
+    def test_team_edit_form(self):
+        """Fields should be properly updated when a team is edited in form
+           submissions"""
         t = models.Team.objects.create(
             name='Team1', subnet='192.168.1.0', netmask='255.255.255.0')
 

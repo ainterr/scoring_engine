@@ -105,17 +105,18 @@ class CredentialTests(TransactionTestCase):
             team=self.team1, default=None, username='lol', password='what',
             services=[self.service1])
         self.assertEqual(models.Credential.objects.count(), 1)
-        self.assertEqual(list(c.services.all()), [self.service1])
+        self.assertEqual(set(c.services.all()), set([self.service1]))
 
         c = models.Credential.objects.create(
             team=None, default=None, username='john', password='lkf',
             services=[self.service1, self.service2])
         self.assertEqual(models.Credential.objects.count(), 4)
-        self.assertEqual(list(c.services.all()), [self.service1, self.service2])
+        self.assertEqual(set(c.services.all()),
+                         set([self.service1, self.service2]))
         self.assertEqual(c.assoc_creds.count(), 2)
         for cred in c.assoc_creds.all():
-            self.assertEqual(list(cred.services.all()),
-                             [self.service1, self.service2])
+            self.assertEqual(set(cred.services.all()),
+                             set([self.service1, self.service2]))
 
     def test_default_credentials_populate_teams(self):
         """When a default credential is added, copies are populated to
@@ -206,12 +207,13 @@ class CredentialTests(TransactionTestCase):
         c.services=[self.service1, self.service2]
         c.save()
         c = models.Credential.objects.get(pk=c.pk) # Reload from DB
-        self.assertEqual(list(c.services.all()), [self.service1, self.service2])
+        self.assertEqual(set(c.services.all()),
+                         set([self.service1, self.service2]))
 
         c.services=[]
         c.save()
         c = models.Credential.objects.get(pk=c.pk) # Reload from DB
-        self.assertEqual(list(c.services.all()), [])
+        self.assertEqual(set(c.services.all()), set())
 
         def_cred = models.Credential.objects.create(
             team=None, default=None, username='blah', password='blop',
@@ -242,13 +244,13 @@ class CredentialTests(TransactionTestCase):
         def_cred.services = [self.service1, self.service2]
         def_cred.save()
         for c in def_cred.assoc_creds.all():
-            self.assertEqual(list(c.services.all()),
-                             [self.service1, self.service2])
+            self.assertEqual(set(c.services.all()),
+                             set([self.service1, self.service2]))
 
         def_cred.services = []
         def_cred.save()
         for c in def_cred.assoc_creds.all():
-            self.assertEqual(list(c.services.all()), [])
+            self.assertEqual(set(c.services.all()), set())
 
     def test_edit_cred_remove_default(self):
         """When a credential associated with a default credential is edited,
@@ -278,8 +280,8 @@ class CredentialTests(TransactionTestCase):
 
         assoc[2].services = [self.service1, self.service2]
         assoc[2].save()
-        self.assertEqual(list(def_cred.services.all()), [self.service1])
-        self.assertEqual(list(assoc[2].services.all()),
-                         [self.service1, self.service2])
+        self.assertEqual(set(def_cred.services.all()), set([self.service1]))
+        self.assertEqual(set(assoc[2].services.all()),
+                         set([self.service1, self.service2]))
         self.assertIs(assoc[2].default, None)
         self.assertEqual(def_cred.assoc_creds.count(), 0)
