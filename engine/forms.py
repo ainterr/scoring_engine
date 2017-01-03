@@ -32,25 +32,27 @@ class DefaultCredentialForm(forms.ModelForm):
         services = list(self.cleaned_data['services'].all())
         self.instance.services = services
         self.instance.save()
+        return self.instance
  
     class Meta:
         model = models.Credential
         exclude = ['team', 'default']
 
 
-class BulkPasswordForm(forms.ModelForm):
-    changeList = forms.CharField(
+class BulkPasswordForm(forms.Form):
+    change_list = forms.CharField(
         label='Password Changes',
         help_text='Enter password changes in format \'user:password\' (no quotes), one per line',
         widget=forms.Textarea(),
         validators=[RegexValidator('^([!-~]+:[!-~]+\s*\n?)+$')])
+    team = forms.ModelChoiceField(models.Team.objects.all())
     service = forms.ModelChoiceField(models.Service.objects.all())
     
     def save(self):
         team = self.cleaned_data['team']
         service = self.cleaned_data['service']
-        for line in self.cleaned_data['changeList'].split('\n'):
-            user,passwd = line.strip().split(':')
+        for line in self.cleaned_data['change_list'].split('\n'):
+            user,passwd = line.strip().split(':', 1)
             try:
                 cred = models.Credential.objects.get(
                     team=team, username=user, services=service)
@@ -71,7 +73,3 @@ class BulkPasswordForm(forms.ModelForm):
                     cred.save()
             except models.Credential.DoesNotExist:
                 pass # User entered a credential which doesn't exist. Ignore it
-
-    class Meta:
-        model = models.Credential
-        fields = ['team', 'service', 'changeList']
