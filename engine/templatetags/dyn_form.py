@@ -5,4 +5,4 @@ register = template.Library()
 
 @register.filter
 def dyn_form(forms, pk):
-  return forms[pk]
+    return forms[pk]
