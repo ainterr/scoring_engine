@@ -4,12 +4,13 @@ from django.core.management import call_command
 from .. import models
 
 class ServicesViewTests(TransactionTestCase):
+    c = Client()
+    path = '/services/'
+
     def setUp(self):
-        self.c = Client()
         user = models.User.objects.create_user(
             username='admin', password='toortoor', is_superuser=True)
-        success = self.c.force_login(user)
-        self.path = '/services/'
+        self.c.force_login(user)
 
         call_command('registerplugins')
         self.http = models.Plugin.objects.get(name='http')
