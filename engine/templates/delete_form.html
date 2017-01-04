@@ -1,0 +1,10 @@
+<form method="post" action="{% url post_url %}">
+{% csrf_token %}
+<input type='hidden' name='delete' value='true' />
+<input type='hidden' name='type' value={{type}} />
+<input type='hidden' name='id' value='{{ m.pk }}' />
+<button class="btn btn-danger pull-right">
+<span class="glyphicon glyphicon-trash"></span>
+</button>
+</form>
+

@@ -1,0 +1,27 @@
+{% load bootstrap3 %}
+{% load dyn_form %}
+<button class="btn btn-success" data-toggle="modal" data-target="#modal{{type}}">
+<span class="glyphicon glyphicon-plus"></span>
+</button>
+
+<div class="modal fade" id="modal{{type}}" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title" id="modalLabel">New {{type}}</h4>
+</div>
+<div class="modal-body">
+<form method="post" action="{% url post_url %}">
+{% csrf_token %}
+{% bootstrap_form forms|dyn_form:0 exclude=ex%}
+</div>
+<div class="modal-footer">
+<input type="submit" class="btn btn-success" value="Submit" />
+<input type="hidden" name="type" value={{type}} />
+</form>
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>

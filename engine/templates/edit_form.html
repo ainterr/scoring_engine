@@ -1,0 +1,29 @@
+{% load bootstrap3 %}
+{% load dyn_form %}
+<button class="btn btn-primary btn-pad pull-right" data-toggle="modal" data-target="#edit{{type}}Modal-{{ m.pk }}">
+<span class="glyphicon glyphicon-pencil"></span>
+</button>
+
+<div class="modal fade" id="edit{{type}}Modal-{{ m.pk }}" tabindex="-1" role="dialog" aria-labelledby="edit{{type}}ModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="edit{{type}}ModalLabel">Edit {{type}}</h4>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{% url post_url %}">
+          {% csrf_token %}
+          {% bootstrap_form forms|dyn_form:m.pk exclude=ex%}
+          <input type='hidden' name='type' value={{type}} />
+          <input type='hidden' name='edit' value='true' />
+          <input type='hidden' name='id' value={{ m.pk}} />
+      </div>
+      <div class="modal-footer">
+          <input type="submit" class="btn btn-success" value="Submit"/>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

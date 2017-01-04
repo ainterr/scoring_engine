@@ -52,13 +52,13 @@ class DefaultCredentialForm(forms.ModelForm):
 
 
 class BulkPasswordForm(forms.Form):
+    team = forms.ModelChoiceField(models.Team.objects.all())
+    service = forms.ModelChoiceField(models.Service.objects.all())
     change_list = forms.CharField(
         label='Password Changes',
         help_text='Enter password changes in format \'user:password\' (no quotes), one per line',
         widget=forms.Textarea(),
         validators=[RegexValidator('^([!-~]+:[!-~]+\s*\n?)+$')])
-    team = forms.ModelChoiceField(models.Team.objects.all())
-    service = forms.ModelChoiceField(models.Service.objects.all())
     
     def save(self):
         team = self.cleaned_data['team']
