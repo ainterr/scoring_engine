@@ -36,7 +36,7 @@ class DefaultCredentialForm(forms.ModelForm):
                pk=self.instance.pk):
                 if username == c.username and \
                    not set(services).isdisjoint(set(c.services.all())):
-                    raise ValidationError('A credential already has the that username/service pair on this team.')
+                    raise ValidationError('A credential already has that username/service pair on this team.')
         return self.cleaned_data
 
     def save(self):

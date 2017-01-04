@@ -173,7 +173,7 @@ class Credential(models.Model):
         for c in Credential.objects.filter(team=self.team).exclude(pk=self.pk):
             if self.username == c.username and \
                not set(services).isdisjoint(set(c.services.all())):
-                raise ValidationError('A credential already has the that username/service pair on this team.')
+                raise ValidationError('A credential already has that username/service pair on this team.')
 
     def populate_teams(self):
         """If this is a default cred, populate all teams with copies of self"""
