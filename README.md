@@ -1,3 +1,7 @@
+# DEPRECATED
+
+This project is no longer being developed. Instead, it's being rewritten to be scalable and more user friendly. Check out the new version [here](https://github.com/nuccdc/scoring_engine).
+
 # Scoring Engine
 
 This is a django app made to mimic the behaviour of the
